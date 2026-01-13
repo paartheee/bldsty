@@ -150,7 +150,7 @@ export default function Home() {
                     >
                         <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 backdrop-blur-xl border border-white/10 pointer-events-none"></div>
                         <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/0 to-purple-500/0 group-hover:from-indigo-500/30 group-hover:to-purple-500/30 transition-all duration-300 pointer-events-none"></div>
-                        <div className="relative flex flex-col items-center p-8 pointer-events-none">
+                        <div className="relative flex flex-col items-center p-8">
                             <div className="relative mb-4">
                                 <div className="absolute inset-0 bg-indigo-500/50 blur-xl rounded-full group-hover:blur-2xl transition-all"></div>
                                 <Users className="w-14 h-14 text-indigo-300 group-hover:scale-110 group-hover:text-indigo-200 transition-all relative" />
@@ -167,7 +167,7 @@ export default function Home() {
                     >
                         <div className="absolute inset-0 bg-gradient-to-br from-pink-500/20 to-rose-500/20 backdrop-blur-xl border border-white/10 pointer-events-none"></div>
                         <div className="absolute inset-0 bg-gradient-to-br from-pink-500/0 to-rose-500/0 group-hover:from-pink-500/30 group-hover:to-rose-500/30 transition-all duration-300 pointer-events-none"></div>
-                        <div className="relative flex flex-col items-center p-8 pointer-events-none">
+                        <div className="relative flex flex-col items-center p-8">
                             <div className="relative mb-4">
                                 <div className="absolute inset-0 bg-pink-500/50 blur-xl rounded-full group-hover:blur-2xl transition-all"></div>
                                 <LogIn className="w-14 h-14 text-pink-300 group-hover:scale-110 group-hover:text-pink-200 transition-all relative" />
