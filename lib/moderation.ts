@@ -1,6 +1,6 @@
 // Content moderation system
 
-import Filter from "bad-words";
+import { Filter } from "bad-words";
 import { config } from "./config";
 
 class ContentModerator {
