@@ -48,24 +48,24 @@ export default function Lobby({ socket }: LobbyProps) {
                 {/* Room Code Section */}
                 <div className="text-center mb-8 md:mb-10 animate-fadeIn">
                     <h2 className="text-base md:text-xl font-bold mb-4 md:mb-6 text-gray-400 uppercase tracking-wider">Room Code</h2>
-                    <div className="relative group mx-auto w-fit">
+                    <div className="relative group inline-block">
                         <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/30 to-purple-500/30 rounded-2xl md:rounded-3xl blur-2xl group-hover:blur-3xl transition-all"></div>
-                        <div className="relative glass rounded-2xl md:rounded-3xl px-4 py-3 sm:px-6 sm:py-4 md:px-10 md:py-6 border-2 border-white/20">
-                            <div className="text-[1.75rem] xs:text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-black tracking-[0.05em] xs:tracking-[0.08em] sm:tracking-[0.15em] md:tracking-[0.25em] gradient-text font-mono">
+                        <div className="relative glass rounded-2xl md:rounded-3xl px-4 py-3 sm:px-6 sm:py-4 md:px-10 md:py-6 border-2 border-white/20 flex items-center gap-3 sm:gap-4">
+                            <div className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-wide sm:tracking-wider md:tracking-widest gradient-text font-mono">
                                 {room.code}
                             </div>
+                            <button
+                                onClick={copyRoomCode}
+                                className="btn-secondary p-2 md:p-3 rounded-xl hover:scale-110 transition-all shrink-0"
+                                title="Copy room code"
+                            >
+                                {copied ? (
+                                    <Check className="w-5 h-5 md:w-6 md:h-6 text-green-400" />
+                                ) : (
+                                    <Copy className="w-5 h-5 md:w-6 md:h-6" />
+                                )}
+                            </button>
                         </div>
-                        <button
-                            onClick={copyRoomCode}
-                            className="absolute -right-2 -top-2 md:-right-4 md:-top-4 btn-secondary p-2 md:p-3 rounded-xl hover:scale-110 transition-all"
-                            title="Copy room code"
-                        >
-                            {copied ? (
-                                <Check className="w-5 h-5 md:w-6 md:h-6 text-green-400" />
-                            ) : (
-                                <Copy className="w-5 h-5 md:w-6 md:h-6" />
-                            )}
-                        </button>
                     </div>
                     <p className="text-gray-400 mt-4 md:mt-6 text-sm md:text-lg font-medium">Share this code with your friends!</p>
                 </div>
