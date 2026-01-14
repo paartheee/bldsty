@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Bldsty Connection Test</title>
+</head>
+<body>
+    <h1>Bldsty Connection Test</h1>
+    <p>Open browser console (F12) to see results</p>
+    <div id="status">Testing...</div>
+
+    <script>
+        console.log('Testing connections...');
+
+        // Test Railway backend
+        fetch('https://bldsty.up.railway.app/health')
+            .then(r => r.json())
+            .then(data => {
+                console.log('✅ Railway backend is running:', data);
+                document.getElementById('status').innerHTML += '<br>✅ Railway backend: OK';
+            })
+            .catch(err => {
+                console.error('❌ Railway backend error:', err);
+                document.getElementById('status').innerHTML += '<br>❌ Railway backend: FAILED';
+            });
+
+        // Test Socket.IO connection
+        const script = document.createElement('script');
+        script.src = 'https://cdn.socket.io/4.8.1/socket.io.min.js';
+        script.onload = () => {
+            console.log('Socket.IO library loaded');
+            const socket = io('https://bldsty.up.railway.app', {
+                transports: ['websocket', 'polling']
+            });
+
+            socket.on('connect', () => {
+                console.log('✅ Connected to Socket.IO server');
+                document.getElementById('status').innerHTML += '<br>✅ Socket.IO: Connected';
+            });
+
+            socket.on('connect_error', (err) => {
+                console.error('❌ Socket.IO connection error:', err);
+                document.getElementById('status').innerHTML += '<br>❌ Socket.IO: ' + err.message;
+            });
+        };
+        document.head.appendChild(script);
+    </script>
+</body>
+</html>

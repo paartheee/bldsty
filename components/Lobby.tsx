@@ -48,10 +48,10 @@ export default function Lobby({ socket }: LobbyProps) {
                 {/* Room Code Section */}
                 <div className="text-center mb-8 md:mb-10 animate-fadeIn">
                     <h2 className="text-base md:text-xl font-bold mb-4 md:mb-6 text-gray-400 uppercase tracking-wider">Room Code</h2>
-                    <div className="relative group mx-auto max-w-fit">
+                    <div className="relative group mx-auto w-fit">
                         <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/30 to-purple-500/30 rounded-2xl md:rounded-3xl blur-2xl group-hover:blur-3xl transition-all"></div>
-                        <div className="relative glass rounded-2xl md:rounded-3xl px-4 py-4 md:px-10 md:py-6 border-2 border-white/20">
-                            <div className="text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-black tracking-[0.15em] sm:tracking-[0.2em] md:tracking-[0.3em] gradient-text font-mono">
+                        <div className="relative glass rounded-2xl md:rounded-3xl px-3 py-3 sm:px-6 sm:py-4 md:px-10 md:py-6 border-2 border-white/20">
+                            <div className="text-2xl xs:text-3xl sm:text-4xl md:text-6xl lg:text-7xl font-black tracking-[0.08em] xs:tracking-[0.1em] sm:tracking-[0.15em] md:tracking-[0.3em] gradient-text font-mono">
                                 {room.code}
                             </div>
                         </div>
