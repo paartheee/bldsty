@@ -48,10 +48,10 @@ export default function Lobby({ socket }: LobbyProps) {
                 {/* Room Code Section */}
                 <div className="text-center mb-8 md:mb-10 animate-fadeIn">
                     <h2 className="text-base md:text-xl font-bold mb-4 md:mb-6 text-gray-400 uppercase tracking-wider">Room Code</h2>
-                    <div className="relative group inline-block">
+                    <div className="relative group inline-block w-full max-w-md mx-auto">
                         <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/30 to-purple-500/30 rounded-2xl md:rounded-3xl blur-2xl group-hover:blur-3xl transition-all"></div>
-                        <div className="relative glass rounded-2xl md:rounded-3xl px-4 py-3 sm:px-6 sm:py-4 md:px-10 md:py-6 border-2 border-white/20 flex items-center gap-3 sm:gap-4">
-                            <div className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-wide sm:tracking-wider md:tracking-widest gradient-text font-mono">
+                        <div className="relative glass rounded-2xl md:rounded-3xl px-4 py-3 sm:px-6 sm:py-4 md:px-10 md:py-6 border-2 border-white/20 flex items-center justify-between gap-3 sm:gap-4">
+                            <div className="text-lg sm:text-3xl md:text-5xl lg:text-6xl font-black tracking-wide sm:tracking-wide md:tracking-wider gradient-text font-mono flex-1 text-center">
                                 {room.code}
                             </div>
                             <button
@@ -71,7 +71,7 @@ export default function Lobby({ socket }: LobbyProps) {
                 </div>
 
                 {/* Players Section */}
-                <div className="relative rounded-2xl md:rounded-3xl overflow-hidden mb-6 md:mb-8 animate-fadeIn" style={{animationDelay: '0.2s'}}>
+                <div className="relative rounded-2xl md:rounded-3xl overflow-hidden mb-6 md:mb-8 animate-fadeIn" style={{ animationDelay: '0.2s' }}>
                     <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 backdrop-blur-xl border border-white/10"></div>
                     <div className="relative p-4 md:p-8">
                         <div className="flex items-center justify-between mb-4 md:mb-8 gap-2">
@@ -143,7 +143,7 @@ export default function Lobby({ socket }: LobbyProps) {
                 </div>
 
                 {/* Game Info */}
-                <div className="relative rounded-xl md:rounded-2xl overflow-hidden mb-6 md:mb-8 animate-fadeIn" style={{animationDelay: '0.4s'}}>
+                <div className="relative rounded-xl md:rounded-2xl overflow-hidden mb-6 md:mb-8 animate-fadeIn" style={{ animationDelay: '0.4s' }}>
                     <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 backdrop-blur-xl border border-white/5"></div>
                     <div className="relative p-4 md:p-6">
                         <h4 className="font-bold mb-3 md:mb-4 text-base md:text-lg text-gray-300">Game Settings</h4>
@@ -177,11 +177,10 @@ export default function Lobby({ socket }: LobbyProps) {
                     <button
                         onClick={handleStartGame}
                         disabled={room.players.length < 4}
-                        className={`relative w-full overflow-hidden rounded-xl md:rounded-2xl transition-all duration-300 group ${
-                            room.players.length < 4
+                        className={`relative w-full overflow-hidden rounded-xl md:rounded-2xl transition-all duration-300 group ${room.players.length < 4
                                 ? 'opacity-50 cursor-not-allowed'
                                 : 'hover:scale-[1.02] hover:shadow-2xl hover:shadow-indigo-500/30'
-                        }`}
+                            }`}
                     >
                         <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
                         {room.players.length >= 4 && (
