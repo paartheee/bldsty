@@ -159,13 +159,11 @@ export default function Lobby({ socket }: LobbyProps) {
                             </div>
                             <div className="flex items-center gap-2 md:gap-3">
                                 <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-purple-500/20 flex items-center justify-center shrink-0">
-                                    <span className="text-sm md:text-lg">🛡️</span>
+                                    <span className="text-sm md:text-lg">⏱️</span>
                                 </div>
                                 <div>
-                                    <span className="text-[10px] md:text-xs text-gray-500 block">Moderation</span>
-                                    <span className="font-bold text-white text-base md:text-lg">
-                                        {room.settings.moderationEnabled ? 'On' : 'Off'}
-                                    </span>
+                                    <span className="text-[10px] md:text-xs text-gray-500 block">Time per Answer</span>
+                                    <span className="font-bold text-white text-base md:text-lg">60 seconds</span>
                                 </div>
                             </div>
                         </div>

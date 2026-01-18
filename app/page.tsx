@@ -261,7 +261,6 @@ function CreateRoomModal({
 }) {
     const [playerName, setPlayerName] = useState('');
     const [maxPlayers, setMaxPlayers] = useState(8);
-    const [moderationEnabled, setModerationEnabled] = useState(true);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -269,7 +268,6 @@ function CreateRoomModal({
             onCreate(playerName, {
                 maxPlayers,
                 language: 'en',
-                moderationEnabled,
             });
         }
     };
@@ -313,19 +311,15 @@ function CreateRoomModal({
                             </div>
                         </div>
 
-                        <div className="flex items-center justify-between p-4 rounded-2xl bg-white/5 border border-white/10">
-                            <label className="text-sm font-semibold text-gray-300">Content Moderation</label>
-                            <button
-                                type="button"
-                                onClick={() => setModerationEnabled(!moderationEnabled)}
-                                className={`relative w-14 h-7 rounded-full transition-all duration-300 ${moderationEnabled ? 'bg-gradient-to-r from-indigo-500 to-purple-500' : 'bg-gray-700'
-                                    }`}
-                            >
-                                <div
-                                    className={`absolute top-0.5 w-6 h-6 bg-white rounded-full transition-all duration-300 shadow-lg ${moderationEnabled ? 'left-7' : 'left-0.5'
-                                        }`}
-                                />
-                            </button>
+                        {/* Timer info */}
+                        <div className="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10">
+                            <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center">
+                                <span className="text-lg">⏱️</span>
+                            </div>
+                            <div>
+                                <span className="text-sm font-semibold text-gray-300 block">1 minute per answer</span>
+                                <span className="text-xs text-gray-500">Keeps rounds fast and chaotic!</span>
+                            </div>
                         </div>
 
                         <div className="flex gap-4 pt-2">

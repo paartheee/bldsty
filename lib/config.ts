@@ -20,11 +20,9 @@ export const config = {
     reconnectionGracePeriod: 300, // 5 minutes
   },
 
-  // Content moderation
-  moderation: {
-    enabled: true,
-    profanityFilterEnabled: true,
-    maxAnswerLength: 200,
+  // Timer settings
+  timer: {
+    questionTimeSeconds: 60, // 1 minute per question
   },
 
   // Questions (fixed order)

@@ -9,12 +9,12 @@ export interface Player {
     isReady: boolean;
     assignedQuestion?: QuestionType;
     hasAnswered?: boolean;
+    previousQuestion?: QuestionType; // Track previous question to prevent repeats
 }
 
 export interface RoomSettings {
     maxPlayers: number;
     language: string;
-    moderationEnabled: boolean;
 }
 
 export interface GameState {

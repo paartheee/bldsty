@@ -114,6 +114,72 @@ export async function removePlayer(
 }
 
 /**
+ * Smart shuffle - assigns questions avoiding repeats from previous round
+ */
+function assignQuestionsWithShuffle(players: Player[]): void {
+    // Build a map of previous questions
+    const previousAssignments = new Map<string, QuestionType>();
+    players.forEach(p => {
+        if (p.previousQuestion) {
+            previousAssignments.set(p.id, p.previousQuestion);
+        }
+    });
+
+    // Shuffle players
+    const shuffledPlayers = [...players].sort(() => Math.random() - 0.5);
+    const availableQuestions = [...QUESTIONS];
+
+    // First pass: try to assign questions avoiding repeats
+    const assignments = new Map<string, QuestionType>();
+    const assignedQuestions = new Set<QuestionType>();
+
+    // Try to assign each player a different question than their previous one
+    for (const player of shuffledPlayers) {
+        const prevQuestion = previousAssignments.get(player.id);
+
+        // Find a question that's not their previous one and not already assigned
+        let assigned = false;
+        for (const question of availableQuestions) {
+            if (!assignedQuestions.has(question) && question !== prevQuestion) {
+                assignments.set(player.id, question);
+                assignedQuestions.add(question);
+                assigned = true;
+                break;
+            }
+        }
+
+        // If we couldn't avoid the previous question, just assign any available one
+        if (!assigned) {
+            for (const question of availableQuestions) {
+                if (!assignedQuestions.has(question)) {
+                    assignments.set(player.id, question);
+                    assignedQuestions.add(question);
+                    break;
+                }
+            }
+        }
+
+        // Stop if we've assigned all 4 questions
+        if (assignedQuestions.size >= 4) break;
+    }
+
+    // Apply assignments to players
+    for (const player of players) {
+        const question = assignments.get(player.id);
+        if (question) {
+            player.previousQuestion = player.assignedQuestion; // Save current as previous
+            player.assignedQuestion = question;
+            player.hasAnswered = false;
+        } else {
+            // Player doesn't have a question this round (more than 4 players)
+            player.previousQuestion = player.assignedQuestion;
+            player.assignedQuestion = undefined;
+            player.hasAnswered = false;
+        }
+    }
+}
+
+/**
  * Start the game - assign questions to players
  */
 export async function startGame(roomCode: string): Promise<Room | null> {
@@ -124,14 +190,8 @@ export async function startGame(roomCode: string): Promise<Room | null> {
         throw new Error('Need at least 4 players to start');
     }
 
-    // Shuffle players and assign questions
-    const shuffledPlayers = [...room.players].sort(() => Math.random() - 0.5);
-
-    QUESTIONS.forEach((question, index) => {
-        const player = shuffledPlayers[index % shuffledPlayers.length];
-        player.assignedQuestion = question;
-        player.hasAnswered = false;
-    });
+    // Use smart shuffle to assign questions
+    assignQuestionsWithShuffle(room.players);
 
     room.gameState.phase = 'playing';
     room.gameState.currentRound++;
@@ -166,7 +226,7 @@ export async function submitAnswer(
     }
 
     // Validate answer
-    const validation = validateAnswer(answer, room.settings.moderationEnabled);
+    const validation = validateAnswer(answer);
     if (!validation.isValid) {
         return { success: false, error: validation.error };
     }
@@ -216,14 +276,8 @@ export async function startNewRound(roomCode: string): Promise<Room | null> {
     const room = await getRoom(roomCode);
     if (!room || room.gameState.phase !== 'reveal') return null;
 
-    // Shuffle and reassign questions
-    const shuffledPlayers = [...room.players].sort(() => Math.random() - 0.5);
-
-    QUESTIONS.forEach((question, index) => {
-        const player = shuffledPlayers[index % shuffledPlayers.length];
-        player.assignedQuestion = question;
-        player.hasAnswered = false;
-    });
+    // Use smart shuffle to reassign questions (avoids giving same question twice in a row)
+    assignQuestionsWithShuffle(room.players);
 
     room.gameState.phase = 'playing';
     room.gameState.currentRound++;
