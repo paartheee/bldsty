@@ -9,12 +9,18 @@ import {
     generateReveal,
     startNewRound
 } from './game-engine';
-import { getRoom, deleteRoom } from './redis-client';
+import { getRoom, deleteRoom, saveRoom } from './redis-client';
 
 type SocketType = Socket<ClientToServerEvents, ServerToClientEvents>;
 
 // Store socket-to-room mapping
 const socketRooms = new Map<string, string>();
+
+// Store pending disconnections (for grace period)
+const pendingDisconnects = new Map<string, { roomCode: string; playerId: string; timeout: NodeJS.Timeout }>();
+
+// Grace period before removing disconnected players (30 seconds)
+const DISCONNECT_GRACE_PERIOD = 30000;
 
 export function setupSocketHandlers(io: any) {
     io.on('connection', (socket: SocketType) => {
@@ -66,6 +72,77 @@ export function setupSocketHandlers(io: any) {
             } catch (error) {
                 console.error('Error joining room:', error);
                 callback(false, 'Failed to join room');
+            }
+        });
+
+        // REJOIN ROOM (for reconnection after tab switch/disconnect)
+        socket.on('rejoin-room', async (roomCode, playerId, playerName, callback) => {
+            try {
+                const room = await getRoom(roomCode.toUpperCase());
+
+                if (!room) {
+                    callback(false, undefined, 'Room not found');
+                    return;
+                }
+
+                // Check if there's a pending disconnect for this player
+                const pendingKey = `${roomCode.toUpperCase()}-${playerId}`;
+                const pending = pendingDisconnects.get(pendingKey);
+                if (pending) {
+                    // Cancel the pending removal
+                    clearTimeout(pending.timeout);
+                    pendingDisconnects.delete(pendingKey);
+                    console.log(`🔄 Cancelled pending disconnect for ${playerName}`);
+                }
+
+                // Find existing player or check if they were in the room
+                const player = room.players.find(p => p.id === playerId);
+
+                if (player) {
+                    // Player still exists - update their socket ID
+                    const oldSocketId = player.id;
+                    player.id = socket.id;
+
+                    // Update host if needed
+                    if (room.hostId === oldSocketId) {
+                        room.hostId = socket.id;
+                    }
+
+                    await saveRoom(room);
+
+                    // Join socket room
+                    await socket.join(roomCode.toUpperCase());
+                    socketRooms.set(socket.id, roomCode.toUpperCase());
+
+                    console.log(`🔄 ${playerName} rejoined room ${roomCode}`);
+                    callback(true, room);
+
+                    // Send current game state
+                    io.to(roomCode.toUpperCase()).emit('room-updated', room);
+
+                    // If game is in progress, send the player's question
+                    if (room.gameState.phase === 'playing' && player.assignedQuestion) {
+                        socket.emit('your-turn', player.assignedQuestion);
+                    }
+                } else {
+                    // Player was removed - try to rejoin as new player if in lobby
+                    if (room.gameState.phase === 'lobby') {
+                        const result = await joinRoom(roomCode.toUpperCase(), socket.id, playerName);
+                        if (result.success && result.room) {
+                            await socket.join(roomCode.toUpperCase());
+                            socketRooms.set(socket.id, roomCode.toUpperCase());
+                            callback(true, result.room);
+                            io.to(roomCode.toUpperCase()).emit('room-updated', result.room);
+                        } else {
+                            callback(false, undefined, result.error || 'Failed to rejoin');
+                        }
+                    } else {
+                        callback(false, undefined, 'Game already in progress');
+                    }
+                }
+            } catch (error) {
+                console.error('Error rejoining room:', error);
+                callback(false, undefined, 'Failed to rejoin room');
             }
         });
 
@@ -222,17 +299,52 @@ export function setupSocketHandlers(io: any) {
 
                 console.log(`🔌 Client disconnected: ${socket.id} from room ${roomCode}`);
 
-                const updatedRoom = await removePlayer(roomCode, socket.id);
-
-                if (updatedRoom) {
-                    // Notify remaining players
-                    io.to(roomCode).emit('player-left', socket.id);
-                    io.to(roomCode).emit('room-updated', updatedRoom);
-                } else {
-                    // Room is empty, delete it
-                    await deleteRoom(roomCode);
-                    console.log(`🗑️ Room ${roomCode} deleted (empty)`);
+                // Get the room to find the player
+                const room = await getRoom(roomCode);
+                if (!room) {
+                    socketRooms.delete(socket.id);
+                    return;
                 }
+
+                const player = room.players.find(p => p.id === socket.id);
+                const pendingKey = `${roomCode}-${socket.id}`;
+
+                // Set up delayed removal with grace period
+                const timeout = setTimeout(async () => {
+                    try {
+                        console.log(`⏰ Grace period expired for ${player?.name || socket.id} in room ${roomCode}`);
+                        pendingDisconnects.delete(pendingKey);
+
+                        const currentRoom = await getRoom(roomCode);
+                        if (!currentRoom) return;
+
+                        // Check if player is still in the room (might have rejoined with new socket)
+                        const stillInRoom = currentRoom.players.find(p => p.id === socket.id);
+                        if (!stillInRoom) return; // Player already removed or rejoined with new ID
+
+                        const updatedRoom = await removePlayer(roomCode, socket.id);
+
+                        if (updatedRoom) {
+                            // Notify remaining players
+                            io.to(roomCode).emit('player-left', socket.id);
+                            io.to(roomCode).emit('room-updated', updatedRoom);
+                        } else {
+                            // Room is empty, delete it
+                            await deleteRoom(roomCode);
+                            console.log(`🗑️ Room ${roomCode} deleted (empty)`);
+                        }
+                    } catch (error) {
+                        console.error('Error in delayed disconnect:', error);
+                    }
+                }, DISCONNECT_GRACE_PERIOD);
+
+                pendingDisconnects.set(pendingKey, {
+                    roomCode,
+                    playerId: socket.id,
+                    timeout
+                });
+
+                console.log(`⏳ Grace period started for ${player?.name || socket.id} (${DISCONNECT_GRACE_PERIOD / 1000}s)`);
 
                 socketRooms.delete(socket.id);
             } catch (error) {

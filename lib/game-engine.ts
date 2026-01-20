@@ -250,6 +250,70 @@ export async function submitAnswer(
 }
 
 /**
+ * Helper to check if text starts with a preposition and remove template preposition if needed
+ */
+function formatWithPreposition(answer: string, defaultPreposition: string): string {
+    const lowerAnswer = answer.toLowerCase().trim();
+
+    // Common prepositions that users might include
+    const prepositions = ['with', 'at', 'in', 'on', 'by', 'near', 'inside', 'outside', 'under', 'over', 'behind', 'beside', 'between', 'around', 'through', 'during', 'while', 'after', 'before'];
+
+    // Check if answer starts with any preposition
+    const startsWithPreposition = prepositions.some(prep =>
+        lowerAnswer.startsWith(prep + ' ') || lowerAnswer === prep
+    );
+
+    if (startsWithPreposition) {
+        // User included preposition, don't add another
+        return answer;
+    }
+
+    // User didn't include preposition, add the default one
+    return `${defaultPreposition} ${answer}`;
+}
+
+/**
+ * Lightweight sentence grammar formatter
+ * Cleans up common issues in the generated sentence
+ */
+function formatSentence(sentence: string): string {
+    let result = sentence;
+
+    // 1. Fix multiple spaces
+    result = result.replace(/\s+/g, ' ');
+
+    // 2. Fix space before punctuation
+    result = result.replace(/\s+([.,!?;:])/g, '$1');
+
+    // 3. Fix missing space after punctuation (except at end)
+    result = result.replace(/([.,!?;:])([A-Za-z])/g, '$1 $2');
+
+    // 4. Fix double punctuation
+    result = result.replace(/([.,!?])+/g, '$1');
+
+    // 5. Capitalize first letter
+    result = result.charAt(0).toUpperCase() + result.slice(1);
+
+    // 6. Ensure sentence ends with a period
+    result = result.trim();
+    if (!/[.!?]$/.test(result)) {
+        result += '.';
+    }
+
+    // 7. Fix "a" to "an" before vowels
+    result = result.replace(/\ba ([aeiouAEIOU])/g, 'an $1');
+
+    // 8. Fix common word repetitions (the the, a a, etc.)
+    result = result.replace(/\b(the|a|an|is|was|were|are|and|or|but|in|on|at|to|for)\s+\1\b/gi, '$1');
+
+    // 9. Fix comma before period
+    result = result.replace(/,\./g, '.');
+
+    // 10. Trim and return
+    return result.trim();
+}
+
+/**
  * Generate reveal data from answers
  */
 export function generateReveal(room: Room): RevealData | null {
@@ -259,12 +323,23 @@ export function generateReveal(room: Room): RevealData | null {
         return null;
     }
 
-    const who = answers.who.answer;
-    const withWhom = answers.withWhom.answer;
-    const where = answers.where.answer;
-    const how = answers.how.answer;
+    const who = answers.who.answer.trim();
+    const withWhom = answers.withWhom.answer.trim();
+    const where = answers.where.answer.trim();
+    const how = answers.how.answer.trim();
 
-    const sentence = `${who} was with ${withWhom} at ${where}, and they did it ${how}.`;
+    // Build sentence with smart preposition handling
+    const withWhomPart = formatWithPreposition(withWhom, 'with');
+    const wherePart = formatWithPreposition(where, 'at');
+
+    // For "how", lowercase the first letter if it starts with a capital
+    const howFormatted = how.charAt(0).toLowerCase() + how.slice(1);
+
+    // Build raw sentence
+    const rawSentence = `${who} was ${withWhomPart} ${wherePart}, ${howFormatted}.`;
+
+    // Apply grammar formatting
+    const sentence = formatSentence(rawSentence);
 
     return { who, withWhom, where, how, sentence };
 }

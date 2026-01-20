@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useGameStore } from '@/lib/game-store';
-import type { ServerToClientEvents, ClientToServerEvents, RoomSettings } from '@/types/game';
+import type { ServerToClientEvents, ClientToServerEvents, RoomSettings, GamePhase } from '@/types/game';
 import Lobby from '@/components/Lobby';
 import GameBoard from '@/components/GameBoard';
 import RevealScreen from '@/components/RevealScreen';
@@ -11,29 +11,126 @@ import { Sparkles, Users, LogIn } from 'lucide-react';
 
 let socket: Socket<ServerToClientEvents, ClientToServerEvents>;
 
+// Session storage keys
+const SESSION_KEY = 'blindstory_session';
+
+interface StoredSession {
+    roomCode: string;
+    playerId: string;
+    playerName: string;
+    view: 'home' | 'lobby' | 'game' | 'reveal';
+    timestamp: number;
+}
+
+// Save session to localStorage
+function saveSession(roomCode: string, playerId: string, playerName: string, view: 'home' | 'lobby' | 'game' | 'reveal') {
+    const session: StoredSession = {
+        roomCode,
+        playerId,
+        playerName,
+        view,
+        timestamp: Date.now()
+    };
+    localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+}
+
+// Get session from localStorage (valid for 30 minutes)
+function getSession(): StoredSession | null {
+    try {
+        const stored = localStorage.getItem(SESSION_KEY);
+        if (!stored) return null;
+
+        const session: StoredSession = JSON.parse(stored);
+        const thirtyMinutes = 30 * 60 * 1000;
+
+        if (Date.now() - session.timestamp > thirtyMinutes) {
+            localStorage.removeItem(SESSION_KEY);
+            return null;
+        }
+
+        return session;
+    } catch {
+        return null;
+    }
+}
+
+// Clear session from localStorage
+function clearSession() {
+    localStorage.removeItem(SESSION_KEY);
+}
+
 export default function Home() {
     const [view, setView] = useState<'home' | 'lobby' | 'game' | 'reveal'>('home');
     const [showCreateModal, setShowCreateModal] = useState(false);
     const [showJoinModal, setShowJoinModal] = useState(false);
+    const [isReconnecting, setIsReconnecting] = useState(false);
+    const hasAttemptedRejoin = useRef(false);
 
-    const { setConnected, setPlayer, setRoom, setMyQuestion, setError, room } = useGameStore();
+    const { setConnected, setPlayer, setRoom, setMyQuestion, setError, room, playerId, playerName } = useGameStore();
+
+    // Save session when view or room changes
+    useEffect(() => {
+        if (room && playerId && playerName && view !== 'home') {
+            saveSession(room.code, playerId, playerName, view);
+        }
+    }, [room, playerId, playerName, view]);
 
     useEffect(() => {
         // Initialize Socket.IO - connect to external server in production
         const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:3001';
         socket = io(socketUrl, {
             transports: ['websocket', 'polling'],
+            reconnection: true,
+            reconnectionAttempts: 10,
+            reconnectionDelay: 1000,
+            reconnectionDelayMax: 5000,
         });
 
         socket.on('connect', () => {
             console.log('Connected to server');
             setConnected(true);
-            setPlayer(socket.id!, '');
+            setPlayer(socket.id!, playerName || '');
+
+            // Try to rejoin if we have a stored session
+            const session = getSession();
+            if (session && !hasAttemptedRejoin.current) {
+                hasAttemptedRejoin.current = true;
+                setIsReconnecting(true);
+                console.log('Attempting to rejoin room:', session.roomCode);
+
+                socket.emit('rejoin-room', session.roomCode, session.playerId, session.playerName, (success, updatedRoom, error) => {
+                    setIsReconnecting(false);
+                    if (success && updatedRoom) {
+                        console.log('Rejoined room successfully');
+                        setRoom(updatedRoom);
+                        setPlayer(socket.id!, session.playerName);
+
+                        // Restore the appropriate view based on game phase
+                        const phase: GamePhase = updatedRoom.gameState.phase;
+                        if (phase === 'lobby') {
+                            setView('lobby');
+                        } else if (phase === 'playing') {
+                            setView('game');
+                        } else if (phase === 'reveal') {
+                            setView('reveal');
+                        }
+
+                        // Update session with new socket ID
+                        saveSession(session.roomCode, socket.id!, session.playerName, view);
+                    } else {
+                        console.log('Failed to rejoin:', error);
+                        clearSession();
+                        setView('home');
+                    }
+                });
+            }
         });
 
         socket.on('disconnect', () => {
             console.log('Disconnected from server');
             setConnected(false);
+            // Don't clear session on disconnect - we want to be able to rejoin
+            hasAttemptedRejoin.current = false; // Allow rejoin attempt on next connect
         });
 
         socket.on('room-updated', (updatedRoom) => {
@@ -72,6 +169,7 @@ export default function Home() {
 
         socket.on('kicked', () => {
             setError('You were kicked from the room');
+            clearSession();
             setView('home');
             setTimeout(() => setError(null), 3000);
         });
@@ -79,26 +177,43 @@ export default function Home() {
         return () => {
             socket.disconnect();
         };
-    }, [setConnected, setPlayer, setRoom, setMyQuestion, setError]);
+    }, [setConnected, setPlayer, setRoom, setMyQuestion, setError, playerName, view]);
 
-    const handleCreateRoom = (playerName: string, settings: RoomSettings) => {
-        socket.emit('create-room', playerName, settings, (roomCode) => {
+    const handleCreateRoom = (name: string, settings: RoomSettings) => {
+        socket.emit('create-room', name, settings, () => {
+            setPlayer(socket.id!, name);
             setShowCreateModal(false);
             setView('lobby');
+            // Session will be saved by the useEffect when room is updated
         });
     };
 
-    const handleJoinRoom = (roomCode: string, playerName: string) => {
-        socket.emit('join-room', roomCode, playerName, (success, error) => {
+    const handleJoinRoom = (roomCode: string, name: string) => {
+        socket.emit('join-room', roomCode, name, (success, error) => {
             if (success) {
+                setPlayer(socket.id!, name);
                 setShowJoinModal(false);
                 setView('lobby');
+                // Session will be saved by the useEffect when room is updated
             } else {
                 setError(error || 'Failed to join room');
                 setTimeout(() => setError(null), 3000);
             }
         });
     };
+
+    // Show reconnecting overlay
+    if (isReconnecting) {
+        return (
+            <div className="min-h-screen flex items-center justify-center p-4">
+                <div className="text-center">
+                    <div className="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <h2 className="text-2xl font-bold text-white mb-2">Reconnecting...</h2>
+                    <p className="text-gray-400">Getting you back into the game</p>
+                </div>
+            </div>
+        );
+    }
 
     if (view === 'lobby' && room) {
         return <Lobby socket={socket} />;
