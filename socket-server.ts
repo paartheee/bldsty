@@ -11,7 +11,7 @@ config();
 const PORT = parseInt(process.env.PORT || '3001', 10);
 const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS
     ? process.env.ALLOWED_ORIGINS.split(',')
-    : ['http://localhost:3000', 'https://bldsty.vercel.app'];
+    : ['http://localhost:3000', 'https://bldsty.vercel.app', 'https://www.blindlol.com', 'https://blindlol.com'];
 
 // Create standalone HTTP server for Socket.IO
 const httpServer = createServer((req, res) => {
