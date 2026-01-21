@@ -89,7 +89,7 @@ export default function Home() {
         socket.on('connect', () => {
             console.log('Connected to server');
             setConnected(true);
-            setPlayer(socket.id!, playerName || '');
+            setPlayer(socket.id!, '');
 
             // Try to rejoin if we have a stored session
             const session = getSession();
@@ -116,7 +116,7 @@ export default function Home() {
                         }
 
                         // Update session with new socket ID
-                        saveSession(session.roomCode, socket.id!, session.playerName, view);
+                        saveSession(session.roomCode, socket.id!, session.playerName, phase === 'lobby' ? 'lobby' : phase === 'playing' ? 'game' : 'reveal');
                     } else {
                         console.log('Failed to rejoin:', error);
                         clearSession();
@@ -177,7 +177,8 @@ export default function Home() {
         return () => {
             socket.disconnect();
         };
-    }, [setConnected, setPlayer, setRoom, setMyQuestion, setError, playerName, view]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const handleCreateRoom = (name: string, settings: RoomSettings) => {
         socket.emit('create-room', name, settings, (roomCode: string) => {
