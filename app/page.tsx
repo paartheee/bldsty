@@ -180,11 +180,16 @@ export default function Home() {
     }, [setConnected, setPlayer, setRoom, setMyQuestion, setError, playerName, view]);
 
     const handleCreateRoom = (name: string, settings: RoomSettings) => {
-        socket.emit('create-room', name, settings, () => {
-            setPlayer(socket.id!, name);
-            setShowCreateModal(false);
-            setView('lobby');
-            // Session will be saved by the useEffect when room is updated
+        socket.emit('create-room', name, settings, (roomCode: string) => {
+            if (roomCode) {
+                setPlayer(socket.id!, name);
+                setShowCreateModal(false);
+                setView('lobby');
+                // Session will be saved by the useEffect when room is updated
+            } else {
+                setError('Failed to create room');
+                setTimeout(() => setError(null), 3000);
+            }
         });
     };
 
@@ -215,16 +220,48 @@ export default function Home() {
         );
     }
 
-    if (view === 'lobby' && room) {
-        return <Lobby socket={socket} />;
+    if (view === 'lobby') {
+        if (room) {
+            return <Lobby socket={socket} />;
+        }
+        // Show loading while waiting for room data
+        return (
+            <div className="min-h-screen flex items-center justify-center p-4">
+                <div className="text-center">
+                    <div className="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <h2 className="text-2xl font-bold text-white mb-2">Creating Room...</h2>
+                    <p className="text-gray-400">Setting up your game</p>
+                </div>
+            </div>
+        );
     }
 
-    if (view === 'game' && room) {
-        return <GameBoard socket={socket} />;
+    if (view === 'game') {
+        if (room) {
+            return <GameBoard socket={socket} />;
+        }
+        return (
+            <div className="min-h-screen flex items-center justify-center p-4">
+                <div className="text-center">
+                    <div className="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <h2 className="text-2xl font-bold text-white mb-2">Loading Game...</h2>
+                </div>
+            </div>
+        );
     }
 
-    if (view === 'reveal' && room) {
-        return <RevealScreen socket={socket} onPlayAgain={() => setView('game')} />;
+    if (view === 'reveal') {
+        if (room) {
+            return <RevealScreen socket={socket} onPlayAgain={() => setView('game')} />;
+        }
+        return (
+            <div className="min-h-screen flex items-center justify-center p-4">
+                <div className="text-center">
+                    <div className="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <h2 className="text-2xl font-bold text-white mb-2">Loading...</h2>
+                </div>
+            </div>
+        );
     }
 
     return (
