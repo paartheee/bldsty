@@ -36,9 +36,11 @@ export function setupSocketHandlers(io: any) {
                 socketRooms.set(socket.id, room.code);
 
                 console.log(`🎮 Room created: ${room.code} by ${playerName}`);
-                callback(room.code);
 
-                // Notify room
+                // Send room data directly in callback to ensure client receives it immediately
+                callback(room.code, room);
+
+                // Also notify room (for any other listeners)
                 io.to(room.code).emit('room-updated', room);
             } catch (error) {
                 console.error('Error creating room:', error);

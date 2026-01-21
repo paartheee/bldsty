@@ -181,9 +181,10 @@ export default function Home() {
     }, []);
 
     const handleCreateRoom = (name: string, settings: RoomSettings) => {
-        socket.emit('create-room', name, settings, (roomCode: string) => {
-            if (roomCode) {
+        socket.emit('create-room', name, settings, (roomCode, roomData) => {
+            if (roomCode && roomData) {
                 setPlayer(socket.id!, name);
+                setRoom(roomData);  // Set room immediately from callback
                 setShowCreateModal(false);
                 setView('lobby');
                 // Session will be saved by the useEffect when room is updated

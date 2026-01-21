@@ -56,7 +56,7 @@ export interface ServerToClientEvents {
 }
 
 export interface ClientToServerEvents {
-    'create-room': (playerName: string, settings: RoomSettings, callback: (roomCode: string) => void) => void;
+    'create-room': (playerName: string, settings: RoomSettings, callback: (roomCode: string, room?: Room) => void) => void;
     'join-room': (roomCode: string, playerName: string, callback: (success: boolean, error?: string) => void) => void;
     'rejoin-room': (roomCode: string, playerId: string, playerName: string, callback: (success: boolean, room?: Room, error?: string) => void) => void;
     'start-game': () => void;
