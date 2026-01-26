@@ -1,4 +1,4 @@
-# 🎮 Bldsty - Blind Story Game
+# 🎮 BlindLOL - Blind Story Game
 
 A hilarious multiplayer party game where players answer questions without seeing what others wrote, creating unexpected and funny stories!
 

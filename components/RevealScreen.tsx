@@ -6,6 +6,7 @@ import { useGameStore } from '@/lib/game-store';
 import type { ServerToClientEvents, ClientToServerEvents, RevealData, QuestionType } from '@/types/game';
 import { motion } from 'framer-motion';
 import { Sparkles, RotateCcw } from 'lucide-react';
+import AdBanner from './AdBanner';
 
 interface RevealScreenProps {
     socket: Socket<ServerToClientEvents, ClientToServerEvents>;
@@ -148,6 +149,19 @@ export default function RevealScreen({ socket, onPlayAgain }: RevealScreenProps)
                                     {emoji}
                                 </button>
                             ))}
+                        </motion.div>
+
+                        {/* Ad Banner */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 2.2 }}
+                            className="mb-6 md:mb-8"
+                        >
+                            <AdBanner
+                                adSlot="1234567892"
+                                adFormat="auto"
+                            />
                         </motion.div>
 
                         {/* Actions */}
