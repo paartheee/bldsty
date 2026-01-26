@@ -37,7 +37,8 @@ export async function createRoom(
             currentRound: 0,
             answers: {},
             currentTurnIndex: 0,
-            questionOrder: []
+            questionOrder: [],
+            rotationIndex: 0
         },
         createdAt: Date.now()
     };
@@ -114,22 +115,41 @@ export async function removePlayer(
 }
 
 /**
- * Smart shuffle - assigns questions avoiding repeats from previous round
+ * Rotational question assignment - assigns questions to groups of 4 players in rotation
+ * With 8 players: Round 1 = players 0-3, Round 2 = players 4-7, Round 3 = players 0-3, etc.
  */
-function assignQuestionsWithShuffle(players: Player[]): void {
-    // Build a map of previous questions
+function assignQuestionsWithRotation(players: Player[], rotationIndex: number): void {
+    const totalPlayers = players.length;
+
+    // Calculate how many complete groups of 4 we have
+    const numGroups = Math.ceil(totalPlayers / 4);
+
+    // Normalize rotation index to wrap around
+    const currentGroup = rotationIndex % numGroups;
+
+    // Calculate which players should get questions this round
+    const startIndex = currentGroup * 4;
+    const playersThisRound: Player[] = [];
+
+    // Select 4 players starting from startIndex, wrapping around if needed
+    for (let i = 0; i < 4 && i < totalPlayers; i++) {
+        const playerIndex = (startIndex + i) % totalPlayers;
+        playersThisRound.push(players[playerIndex]);
+    }
+
+    // Build a map of previous questions for smart assignment
     const previousAssignments = new Map<string, QuestionType>();
-    players.forEach(p => {
+    playersThisRound.forEach(p => {
         if (p.previousQuestion) {
             previousAssignments.set(p.id, p.previousQuestion);
         }
     });
 
-    // Shuffle players
-    const shuffledPlayers = [...players].sort(() => Math.random() - 0.5);
+    // Shuffle the selected players for question variety
+    const shuffledPlayers = [...playersThisRound].sort(() => Math.random() - 0.5);
     const availableQuestions = [...QUESTIONS];
 
-    // First pass: try to assign questions avoiding repeats
+    // Assign questions avoiding repeats when possible
     const assignments = new Map<string, QuestionType>();
     const assignedQuestions = new Set<QuestionType>();
 
@@ -163,7 +183,7 @@ function assignQuestionsWithShuffle(players: Player[]): void {
         if (assignedQuestions.size >= 4) break;
     }
 
-    // Apply assignments to players
+    // Apply assignments to ALL players
     for (const player of players) {
         const question = assignments.get(player.id);
         if (question) {
@@ -171,7 +191,7 @@ function assignQuestionsWithShuffle(players: Player[]): void {
             player.assignedQuestion = question;
             player.hasAnswered = false;
         } else {
-            // Player doesn't have a question this round (more than 4 players)
+            // Player doesn't have a question this round (they watch)
             player.previousQuestion = player.assignedQuestion;
             player.assignedQuestion = undefined;
             player.hasAnswered = false;
@@ -190,14 +210,16 @@ export async function startGame(roomCode: string): Promise<Room | null> {
         throw new Error('Need at least 4 players to start');
     }
 
-    // Use smart shuffle to assign questions
-    assignQuestionsWithShuffle(room.players);
+    // Use rotational assignment for questions
+    assignQuestionsWithRotation(room.players, room.gameState.rotationIndex);
 
     room.gameState.phase = 'playing';
     room.gameState.currentRound++;
     room.gameState.currentTurnIndex = 0;
     room.gameState.answers = {};
     room.gameState.questionOrder = QUESTIONS;
+    // Increment rotation index for next round
+    room.gameState.rotationIndex++;
 
     await saveRoom(room);
     return room;
@@ -351,13 +373,15 @@ export async function startNewRound(roomCode: string): Promise<Room | null> {
     const room = await getRoom(roomCode);
     if (!room || room.gameState.phase !== 'reveal') return null;
 
-    // Use smart shuffle to reassign questions (avoids giving same question twice in a row)
-    assignQuestionsWithShuffle(room.players);
+    // Use rotational assignment - next group of players gets questions
+    assignQuestionsWithRotation(room.players, room.gameState.rotationIndex);
 
     room.gameState.phase = 'playing';
     room.gameState.currentRound++;
     room.gameState.currentTurnIndex = 0;
     room.gameState.answers = {};
+    // Increment rotation index for next round
+    room.gameState.rotationIndex++;
 
     await saveRoom(room);
     return room;

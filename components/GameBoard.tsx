@@ -81,7 +81,158 @@ export default function GameBoard({ socket }: GameBoardProps) {
         }
     }, [timeLeft, hasAnswered, autoSubmit]);
 
-    if (!room || !myQuestion) return null;
+    if (!room) return null;
+
+    // Get players who are typing (have question assigned but haven't answered)
+    const playersTyping = room.players.filter(p => p.assignedQuestion && !p.hasAnswered);
+    const playersAnswered = room.players.filter(p => p.assignedQuestion && p.hasAnswered);
+    const playersWatching = room.players.filter(p => !p.assignedQuestion);
+
+    // Spectator view for players without assigned questions
+    if (!myQuestion) {
+        const answeredCount = Object.keys(room.gameState.answers).length;
+        const totalQuestions = 4;
+
+        return (
+            <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+                {/* Animated background elements */}
+                <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                    <div className="absolute top-20 left-10 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl animate-float"></div>
+                    <div className="absolute bottom-20 right-10 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl animate-float-delayed"></div>
+                </div>
+
+                <div className="max-w-2xl w-full relative z-10">
+                    {/* Round Info */}
+                    <div className="text-center mb-6 md:mb-10 animate-fadeIn">
+                        <div className="inline-block px-4 py-2 rounded-full bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 mb-4">
+                            <span className="text-sm font-bold text-indigo-300">Round {room.gameState.currentRound}</span>
+                        </div>
+                        <h2 className="text-3xl sm:text-4xl md:text-5xl font-black gradient-text mb-4 md:mb-6 animate-title">
+                            👀 Watching This Round
+                        </h2>
+                        <p className="text-base md:text-xl text-gray-300 font-medium px-4">
+                            Other players are crafting the story. You&apos;ll get to play next round!
+                        </p>
+                    </div>
+
+                    {/* Progress Indicators */}
+                    <div className="flex justify-center gap-2 md:gap-3 mb-6 md:mb-10">
+                        {Array.from({ length: totalQuestions }).map((_, i) => (
+                            <div
+                                key={i}
+                                className={`relative h-2 md:h-3 w-14 md:w-20 rounded-full transition-all duration-500 ${i < answeredCount
+                                    ? 'bg-gradient-to-r from-indigo-500 to-pink-500'
+                                    : 'bg-gray-700/50'
+                                    }`}
+                            >
+                                {i < answeredCount && (
+                                    <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-pink-500 rounded-full blur-md"></div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Players Activity Card */}
+                    <div className="relative rounded-2xl md:rounded-3xl overflow-hidden animate-fadeIn">
+                        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 backdrop-blur-xl border border-white/10"></div>
+                        <div className="relative p-6 md:p-8">
+                            {/* Players Currently Typing */}
+                            {playersTyping.length > 0 && (
+                                <div className="mb-6">
+                                    <div className="text-xs md:text-sm font-bold text-gray-400 mb-3 uppercase tracking-wider flex items-center gap-2">
+                                        <span className="relative flex h-3 w-3">
+                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75"></span>
+                                            <span className="relative inline-flex rounded-full h-3 w-3 bg-yellow-500"></span>
+                                        </span>
+                                        Currently Typing
+                                    </div>
+                                    <div className="space-y-3">
+                                        {playersTyping.map((player) => (
+                                            <div
+                                                key={player.id}
+                                                className="flex items-center gap-3 px-4 py-3 rounded-xl bg-yellow-500/10 border border-yellow-500/20"
+                                            >
+                                                <div className="flex-1 font-semibold text-yellow-200">
+                                                    {player.name}
+                                                </div>
+                                                {/* Typing indicator animation */}
+                                                <div className="flex gap-1">
+                                                    {[0, 1, 2].map((i) => (
+                                                        <div
+                                                            key={i}
+                                                            className="w-2 h-2 rounded-full bg-yellow-400 animate-bounce"
+                                                            style={{ animationDelay: `${i * 0.15}s` }}
+                                                        />
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Players Who Have Answered */}
+                            {playersAnswered.length > 0 && (
+                                <div className="mb-6">
+                                    <div className="text-xs md:text-sm font-bold text-gray-400 mb-3 uppercase tracking-wider flex items-center gap-2">
+                                        <span className="text-green-500">✓</span>
+                                        Submitted
+                                    </div>
+                                    <div className="flex flex-wrap gap-2">
+                                        {playersAnswered.map((player) => (
+                                            <div
+                                                key={player.id}
+                                                className="px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-xl text-xs md:text-sm font-semibold bg-green-500/20 text-green-300 border border-green-500/30"
+                                            >
+                                                {player.name} ✓
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Other Spectators */}
+                            {playersWatching.length > 1 && (
+                                <div className="pt-4 border-t border-white/10">
+                                    <div className="text-xs md:text-sm font-bold text-gray-400 mb-3 uppercase tracking-wider flex items-center gap-2">
+                                        👀 Also Watching
+                                    </div>
+                                    <div className="flex flex-wrap gap-2">
+                                        {playersWatching
+                                            .filter(p => p.id !== useGameStore.getState().playerId)
+                                            .map((player) => (
+                                                <div
+                                                    key={player.id}
+                                                    className="px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-xl text-xs md:text-sm font-semibold bg-gray-700/30 text-gray-400 border border-gray-600/30"
+                                                >
+                                                    {player.name}
+                                                </div>
+                                            ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Waiting message */}
+                            <div className="mt-6 pt-6 border-t border-white/10 text-center">
+                                <div className="flex justify-center gap-2 md:gap-3 mb-4">
+                                    {[0, 1, 2].map((i) => (
+                                        <div
+                                            key={i}
+                                            className="w-3 h-3 md:w-4 md:h-4 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 animate-bounce"
+                                            style={{ animationDelay: `${i * 0.2}s` }}
+                                        />
+                                    ))}
+                                </div>
+                                <p className="text-gray-400 text-sm md:text-base">
+                                    Waiting for all answers to be submitted...
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();

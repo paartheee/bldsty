@@ -23,6 +23,7 @@ export interface GameState {
     answers: Partial<Record<QuestionType, { playerId: string; answer: string }>>;
     currentTurnIndex: number;
     questionOrder: QuestionType[];
+    rotationIndex: number; // Tracks which group of 4 players should answer (for rotation)
 }
 
 export interface Room {

@@ -3,37 +3,77 @@
 import { Socket } from 'socket.io-client';
 import { useGameStore } from '@/lib/game-store';
 import type { ServerToClientEvents, ClientToServerEvents } from '@/types/game';
-import { Users, Crown, Copy, Check, UserMinus } from 'lucide-react';
+import { Users, Crown, Copy, Check, UserMinus, LogOut } from 'lucide-react';
 import { useState } from 'react';
+import AdBanner from './AdBanner';
+import Modal, { ModalType } from './Modal';
 
 interface LobbyProps {
     socket: Socket<ServerToClientEvents, ClientToServerEvents>;
+    onLeaveRoom?: () => void;
 }
 
-export default function Lobby({ socket }: LobbyProps) {
+export default function Lobby({ socket, onLeaveRoom }: LobbyProps) {
     const { room, isHost } = useGameStore();
     const [copied, setCopied] = useState(false);
+    const [modalState, setModalState] = useState<{
+        isOpen: boolean;
+        type: ModalType;
+        title?: string;
+        message: string;
+        onConfirm?: () => void;
+    }>({ isOpen: false, type: 'alert', message: '' });
 
     if (!room) return null;
 
     const handleStartGame = () => {
         if (room.players.length < 4) {
-            alert('Need at least 4 players to start!');
+            setModalState({
+                isOpen: true,
+                type: 'alert',
+                title: 'Not Enough Players',
+                message: 'Need at least 4 players to start the game!'
+            });
             return;
         }
         socket.emit('start-game');
     };
 
     const handleKickPlayer = (playerId: string) => {
-        if (confirm('Kick this player?')) {
-            socket.emit('kick-player', playerId);
-        }
+        setModalState({
+            isOpen: true,
+            type: 'confirm',
+            title: 'Kick Player',
+            message: 'Are you sure you want to kick this player?',
+            onConfirm: () => socket.emit('kick-player', playerId)
+        });
     };
 
     const copyRoomCode = () => {
         navigator.clipboard.writeText(room.code);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
+    };
+
+    const handleLeaveRoom = () => {
+        setModalState({
+            isOpen: true,
+            type: 'confirm',
+            title: 'Leave Room',
+            message: 'Are you sure you want to leave this room?',
+            onConfirm: () => {
+                // Clear session storage
+                sessionStorage.removeItem('blindstory_session');
+
+                // Disconnect and leave room
+                socket.disconnect();
+
+                // Call parent callback to reset view
+                if (onLeaveRoom) {
+                    onLeaveRoom();
+                }
+            }
+        });
     };
 
     return (
@@ -68,6 +108,17 @@ export default function Lobby({ socket }: LobbyProps) {
                         </div>
                     </div>
                     <p className="text-gray-400 mt-4 md:mt-6 text-sm md:text-lg font-medium">Share this code with your friends!</p>
+                </div>
+
+                {/* Leave Room Button */}
+                <div className="text-center mb-6 md:mb-8 animate-fadeIn" style={{ animationDelay: '0.1s' }}>
+                    <button
+                        onClick={handleLeaveRoom}
+                        className="btn-secondary px-6 py-3 flex items-center gap-2 mx-auto hover:bg-red-500/20 hover:border-red-500/40 transition-all"
+                    >
+                        <LogOut className="w-4 h-4 md:w-5 md:h-5" />
+                        <span className="font-semibold">Leave Room</span>
+                    </button>
                 </div>
 
                 {/* Players Section */}
@@ -170,14 +221,22 @@ export default function Lobby({ socket }: LobbyProps) {
                     </div>
                 </div>
 
+                {/* Ad Banner */}
+                <div className="mb-6 md:mb-8 animate-fadeIn" style={{ animationDelay: '0.6s' }}>
+                    <AdBanner
+                        adSlot="1234567891"
+                        adFormat="auto"
+                    />
+                </div>
+
                 {/* Start Button */}
                 {isHost() && (
                     <button
                         onClick={handleStartGame}
                         disabled={room.players.length < 4}
                         className={`relative w-full overflow-hidden rounded-xl md:rounded-2xl transition-all duration-300 group ${room.players.length < 4
-                                ? 'opacity-50 cursor-not-allowed'
-                                : 'hover:scale-[1.02] hover:shadow-2xl hover:shadow-indigo-500/30'
+                            ? 'opacity-50 cursor-not-allowed'
+                            : 'hover:scale-[1.02] hover:shadow-2xl hover:shadow-indigo-500/30'
                             }`}
                     >
                         <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-purple-500"></div>
@@ -201,6 +260,16 @@ export default function Lobby({ socket }: LobbyProps) {
                     </div>
                 )}
             </div>
+
+            {/* Modal */}
+            <Modal
+                isOpen={modalState.isOpen}
+                onClose={() => setModalState({ ...modalState, isOpen: false })}
+                onConfirm={modalState.onConfirm}
+                title={modalState.title}
+                message={modalState.message}
+                type={modalState.type}
+            />
         </div>
     );
 }

@@ -7,6 +7,8 @@ import type { ServerToClientEvents, ClientToServerEvents, RoomSettings, GamePhas
 import Lobby from '@/components/Lobby';
 import GameBoard from '@/components/GameBoard';
 import RevealScreen from '@/components/RevealScreen';
+import Modal, { ModalType } from '@/components/Modal';
+import AdBanner from '@/components/AdBanner';
 import { Sparkles, Users, LogIn } from 'lucide-react';
 
 let socket: Socket<ServerToClientEvents, ClientToServerEvents>;
@@ -22,7 +24,7 @@ interface StoredSession {
     timestamp: number;
 }
 
-// Save session to localStorage
+// Save session to sessionStorage (tab-specific)
 function saveSession(roomCode: string, playerId: string, playerName: string, view: 'home' | 'lobby' | 'game' | 'reveal') {
     const session: StoredSession = {
         roomCode,
@@ -31,20 +33,20 @@ function saveSession(roomCode: string, playerId: string, playerName: string, vie
         view,
         timestamp: Date.now()
     };
-    localStorage.setItem(SESSION_KEY, JSON.stringify(session));
+    sessionStorage.setItem(SESSION_KEY, JSON.stringify(session));
 }
 
-// Get session from localStorage (valid for 30 minutes)
+// Get session from sessionStorage (valid for 30 minutes)
 function getSession(): StoredSession | null {
     try {
-        const stored = localStorage.getItem(SESSION_KEY);
+        const stored = sessionStorage.getItem(SESSION_KEY);
         if (!stored) return null;
 
         const session: StoredSession = JSON.parse(stored);
         const thirtyMinutes = 30 * 60 * 1000;
 
         if (Date.now() - session.timestamp > thirtyMinutes) {
-            localStorage.removeItem(SESSION_KEY);
+            sessionStorage.removeItem(SESSION_KEY);
             return null;
         }
 
@@ -54,9 +56,9 @@ function getSession(): StoredSession | null {
     }
 }
 
-// Clear session from localStorage
+// Clear session from sessionStorage
 function clearSession() {
-    localStorage.removeItem(SESSION_KEY);
+    sessionStorage.removeItem(SESSION_KEY);
 }
 
 export default function Home() {
@@ -65,6 +67,12 @@ export default function Home() {
     const [showJoinModal, setShowJoinModal] = useState(false);
     const [isReconnecting, setIsReconnecting] = useState(false);
     const hasAttemptedRejoin = useRef(false);
+    const [modalState, setModalState] = useState<{
+        isOpen: boolean;
+        type: ModalType;
+        title?: string;
+        message: string;
+    }>({ isOpen: false, type: 'error', message: '' });
 
     const { setConnected, setPlayer, setRoom, setMyQuestion, setError, room, playerId, playerName } = useGameStore();
 
@@ -162,16 +170,44 @@ export default function Home() {
             // Room will be updated via room-updated event
         });
 
+
         socket.on('error', (message) => {
+            console.error('Socket error:', message);
             setError(message);
-            setTimeout(() => setError(null), 3000);
+
+            // Show modal for specific errors
+            if (message.toLowerCase().includes('full')) {
+                setModalState({
+                    isOpen: true,
+                    type: 'error',
+                    title: 'Room Full',
+                    message: 'This room has reached its maximum capacity. Please try another room.'
+                });
+                setView('home');
+            } else if (message.toLowerCase().includes('not found') || message.toLowerCase().includes('exist')) {
+                setModalState({
+                    isOpen: true,
+                    type: 'error',
+                    title: 'Room Not Found',
+                    message: 'This room does not exist. Please check the room code and try again.'
+                });
+                setView('home');
+            } else {
+                // For other errors, show brief notification
+                setTimeout(() => setError(null), 3000);
+            }
         });
 
+
         socket.on('kicked', () => {
-            setError('You were kicked from the room');
             clearSession();
             setView('home');
-            setTimeout(() => setError(null), 3000);
+            setModalState({
+                isOpen: true,
+                type: 'error',
+                title: 'Removed from Room',
+                message: 'You have been removed from the room by the host.'
+            });
         });
 
         return () => {
@@ -203,10 +239,64 @@ export default function Home() {
                 setView('lobby');
                 // Session will be saved by the useEffect when room is updated
             } else {
-                setError(error || 'Failed to join room');
-                setTimeout(() => setError(null), 3000);
+                const errorMsg = error || 'Failed to join room';
+
+                // Show modal for specific errors
+                if (errorMsg.toLowerCase().includes('full')) {
+                    setShowJoinModal(false);
+                    setModalState({
+                        isOpen: true,
+                        type: 'error',
+                        title: 'Room Full',
+                        message: 'This room has reached its maximum capacity. Please try another room or wait for a spot to open up.'
+                    });
+                } else if (errorMsg.toLowerCase().includes('not found') || errorMsg.toLowerCase().includes('exist')) {
+                    setShowJoinModal(false);
+                    setModalState({
+                        isOpen: true,
+                        type: 'error',
+                        title: 'Room Not Found',
+                        message: 'This room does not exist. Please check the room code and try again.'
+                    });
+                } else if (errorMsg.toLowerCase().includes('progress')) {
+                    setShowJoinModal(false);
+                    setModalState({
+                        isOpen: true,
+                        type: 'info',
+                        title: 'Game In Progress',
+                        message: 'This game has already started. Please wait for the next round or try another room.'
+                    });
+                } else if (errorMsg.toLowerCase().includes('duplicate') || errorMsg.toLowerCase().includes('name')) {
+                    setModalState({
+                        isOpen: true,
+                        type: 'alert',
+                        title: 'Name Taken',
+                        message: 'Someone in this room already has that name. Please choose a different name.'
+                    });
+                } else {
+                    setError(errorMsg);
+                    setTimeout(() => setError(null), 3000);
+                }
             }
         });
+    };
+
+    const handleLeaveRoom = () => {
+        // Reset game store
+        setRoom(null);
+        setPlayer('', '');
+        setMyQuestion(null);
+
+        // Clear session
+        clearSession();
+
+        // Return to home
+        setView('home');
+
+        // Reconnect socket for next game
+        if (socket && !socket.connected) {
+            socket.connect();
+        }
     };
 
     // Show reconnecting overlay
@@ -224,7 +314,7 @@ export default function Home() {
 
     if (view === 'lobby') {
         if (room) {
-            return <Lobby socket={socket} />;
+            return <Lobby socket={socket} onLeaveRoom={handleLeaveRoom} />;
         }
         // Show loading while waiting for room data
         return (
@@ -285,12 +375,12 @@ export default function Home() {
                         <Sparkles className="w-16 h-16 text-indigo-400 animate-pulse relative" />
                     </div>
                     <h1 className="text-7xl md:text-8xl font-black mb-6 gradient-text tracking-tight animate-title">
-                        Blind Story
+                        BlindLOL🫣
                     </h1>
-                    <p className="text-2xl md:text-3xl font-bold text-white mb-3 animate-fadeIn" style={{animationDelay: '0.2s'}}>
+                    <p className="text-2xl md:text-3xl font-bold text-white mb-3 animate-fadeIn" style={{ animationDelay: '0.2s' }}>
                         Create hilarious stories with friends
                     </p>
-                    <p className="text-lg text-gray-400 animate-fadeIn" style={{animationDelay: '0.4s'}}>
+                    <p className="text-lg text-gray-400 animate-fadeIn" style={{ animationDelay: '0.4s' }}>
                         Answer questions without seeing what others wrote!
                     </p>
                 </div>
@@ -300,7 +390,7 @@ export default function Home() {
                     <button
                         onClick={() => setShowCreateModal(true)}
                         className="group relative overflow-hidden rounded-2xl transition-all duration-300 hover:scale-105 hover:-translate-y-1 animate-fadeIn"
-                        style={{animationDelay: '0.6s'}}
+                        style={{ animationDelay: '0.6s' }}
                     >
                         <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 backdrop-blur-xl border border-white/10 pointer-events-none"></div>
                         <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/0 to-purple-500/0 group-hover:from-indigo-500/30 group-hover:to-purple-500/30 transition-all duration-300 pointer-events-none"></div>
@@ -317,7 +407,7 @@ export default function Home() {
                     <button
                         onClick={() => setShowJoinModal(true)}
                         className="group relative overflow-hidden rounded-2xl transition-all duration-300 hover:scale-105 hover:-translate-y-1 animate-fadeIn"
-                        style={{animationDelay: '0.8s'}}
+                        style={{ animationDelay: '0.8s' }}
                     >
                         <div className="absolute inset-0 bg-gradient-to-br from-pink-500/20 to-rose-500/20 backdrop-blur-xl border border-white/10 pointer-events-none"></div>
                         <div className="absolute inset-0 bg-gradient-to-br from-pink-500/0 to-rose-500/0 group-hover:from-pink-500/30 group-hover:to-rose-500/30 transition-all duration-300 pointer-events-none"></div>
@@ -333,7 +423,7 @@ export default function Home() {
                 </div>
 
                 {/* How to Play */}
-                <div className="relative rounded-3xl overflow-hidden animate-fadeIn" style={{animationDelay: '1s'}}>
+                <div className="relative rounded-3xl overflow-hidden animate-fadeIn" style={{ animationDelay: '1s' }}>
                     <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-pink-500/10 backdrop-blur-xl border border-white/10"></div>
                     <div className="relative p-8">
                         <h3 className="text-2xl font-bold mb-8 text-center bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300 bg-clip-text text-transparent">
@@ -385,6 +475,15 @@ export default function Home() {
                     </div>
                 </div>
 
+                {/* Ad Banner */}
+                <div className="mt-8 animate-fadeIn" style={{ animationDelay: '1.2s' }}>
+                    <AdBanner
+                        adSlot="1234567890"
+                        adFormat="auto"
+                        className="max-w-2xl mx-auto"
+                    />
+                </div>
+
                 {/* Create Room Modal */}
                 {showCreateModal && (
                     <CreateRoomModal
@@ -400,6 +499,15 @@ export default function Home() {
                         onJoin={handleJoinRoom}
                     />
                 )}
+
+                {/* Modal */}
+                <Modal
+                    isOpen={modalState.isOpen}
+                    onClose={() => setModalState({ ...modalState, isOpen: false })}
+                    title={modalState.title}
+                    message={modalState.message}
+                    type={modalState.type}
+                />
             </div>
         </div>
     );
