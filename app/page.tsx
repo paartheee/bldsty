@@ -425,6 +425,24 @@ export default function Home() {
                     </button>
                 </div>
 
+                {/* Product Hunt Badge */}
+                <div className="flex justify-center mb-12 animate-fadeIn" style={{ animationDelay: '0.9s' }}>
+                    <a
+                        href="https://www.producthunt.com/products/blindlol?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-blindlol"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:scale-105 transition-transform duration-300"
+                    >
+                        <img
+                            src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1068384&theme=light&t=1769438896638"
+                            alt="BlindLOL - A chaotic multiplayer game where you write a story blind | Product Hunt"
+                            style={{ width: 250, height: 54 }}
+                            width="250"
+                            height="54"
+                        />
+                    </a>
+                </div>
+
                 {/* How to Play */}
                 <div className="relative rounded-3xl overflow-hidden animate-fadeIn" style={{ animationDelay: '1s' }}>
                     <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-pink-500/10 backdrop-blur-xl border border-white/10"></div>
