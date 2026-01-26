@@ -375,7 +375,7 @@ export default function Home() {
                         <Sparkles className="w-16 h-16 text-indigo-400 animate-pulse relative" />
                     </div>
                     <h1 className="text-7xl md:text-8xl font-black mb-6 gradient-text tracking-tight animate-title">
-                        BlindLOL🫣
+                        BlindLOL 😂
                     </h1>
                     <p className="text-2xl md:text-3xl font-bold text-white mb-3 animate-fadeIn" style={{ animationDelay: '0.2s' }}>
                         Create hilarious stories with friends
