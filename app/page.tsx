@@ -147,6 +147,7 @@ export default function Home() {
 
         socket.on('game-started', (updatedRoom) => {
             setRoom(updatedRoom);
+            setMyQuestion(null); // Clear previous question state
             setView('game');
         });
 
@@ -600,8 +601,8 @@ function CreateRoomModal({
                                         type="button"
                                         onClick={() => setTimerSeconds(option.value)}
                                         className={`py-3 px-2 rounded-xl font-semibold text-sm transition-all ${timerSeconds === option.value
-                                                ? 'bg-indigo-500 text-white'
-                                                : 'bg-white/5 text-gray-300 hover:bg-white/10 border border-white/10'
+                                            ? 'bg-indigo-500 text-white'
+                                            : 'bg-white/5 text-gray-300 hover:bg-white/10 border border-white/10'
                                             }`}
                                     >
                                         {option.label}
