@@ -23,7 +23,8 @@ function getQuestionLabel(question: QuestionType): string {
 }
 
 export default function GameBoard({ socket }: GameBoardProps) {
-    const { room, myQuestion, hasAnswered } = useGameStore();
+    const { room, getMyQuestion, hasAnswered } = useGameStore();
+    const myQuestion = getMyQuestion();
     const timerSeconds = room?.settings.timerSeconds || DEFAULT_TIMER_SECONDS;
     const [answer, setAnswer] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);

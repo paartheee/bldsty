@@ -15,9 +15,8 @@ interface GameStore {
     room: Room | null;
     setRoom: (room: Room | null) => void;
 
-    // Current player's question
-    myQuestion: QuestionType | null;
-    setMyQuestion: (question: QuestionType | null) => void;
+    // Derived state
+    getMyQuestion: () => QuestionType | null;
 
     // UI state
     isWaiting: boolean;
@@ -41,7 +40,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
     playerId: null,
     playerName: null,
     room: null,
-    myQuestion: null,
     isWaiting: false,
     error: null,
 
@@ -49,11 +47,16 @@ export const useGameStore = create<GameStore>((set, get) => ({
     setConnected: (connected) => set({ isConnected: connected }),
     setPlayer: (id, name) => set({ playerId: id, playerName: name }),
     setRoom: (room) => set({ room }),
-    setMyQuestion: (question) => set({ myQuestion: question }),
     setWaiting: (waiting) => set({ isWaiting: waiting }),
     setError: (error) => set({ error }),
 
     // Helpers
+    getMyQuestion: () => {
+        const { room, playerId } = get();
+        const player = room?.players.find(p => p.id === playerId);
+        return player?.assignedQuestion || null;
+    },
+
     isHost: () => {
         const { room, playerId } = get();
         return room?.hostId === playerId;
@@ -73,7 +76,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
         playerId: null,
         playerName: null,
         room: null,
-        myQuestion: null,
         isWaiting: false,
         error: null
     })

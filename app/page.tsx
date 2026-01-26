@@ -74,7 +74,7 @@ export default function Home() {
         message: string;
     }>({ isOpen: false, type: 'error', message: '' });
 
-    const { setConnected, setPlayer, setRoom, setMyQuestion, setError, room, playerId, playerName } = useGameStore();
+    const { setConnected, setPlayer, setRoom, setError, room, playerId, playerName } = useGameStore();
 
     // Save session when view or room changes
     useEffect(() => {
@@ -147,13 +147,10 @@ export default function Home() {
 
         socket.on('game-started', (updatedRoom) => {
             setRoom(updatedRoom);
-            setMyQuestion(null); // Clear previous question state
             setView('game');
         });
 
-        socket.on('your-turn', (question) => {
-            setMyQuestion(question);
-        });
+
 
         socket.on('waiting-for-others', () => {
             // Player has submitted, waiting for others
@@ -291,7 +288,6 @@ export default function Home() {
         // Reset game store
         setRoom(null);
         setPlayer('', '');
-        setMyQuestion(null);
 
         // Clear session
         clearSession();
