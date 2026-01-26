@@ -6,7 +6,7 @@ import { useGameStore } from '@/lib/game-store';
 import type { ServerToClientEvents, ClientToServerEvents, QuestionType } from '@/types/game';
 import { Send, Loader2, Clock } from 'lucide-react';
 
-const TIMER_SECONDS = 60; // 1 minute per question
+const DEFAULT_TIMER_SECONDS = 60; // Fallback if not set
 
 interface GameBoardProps {
     socket: Socket<ServerToClientEvents, ClientToServerEvents>;
@@ -24,9 +24,10 @@ function getQuestionLabel(question: QuestionType): string {
 
 export default function GameBoard({ socket }: GameBoardProps) {
     const { room, myQuestion, hasAnswered } = useGameStore();
+    const timerSeconds = room?.settings.timerSeconds || DEFAULT_TIMER_SECONDS;
     const [answer, setAnswer] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [timeLeft, setTimeLeft] = useState(TIMER_SECONDS);
+    const [timeLeft, setTimeLeft] = useState(timerSeconds);
     const timerRef = useRef<NodeJS.Timeout | null>(null);
     const hasAutoSubmittedRef = useRef(false);
 
@@ -50,7 +51,7 @@ export default function GameBoard({ socket }: GameBoardProps) {
     useEffect(() => {
         // Reset timer when question changes or component mounts
         if (!hasAnswered()) {
-            setTimeLeft(TIMER_SECONDS);
+            setTimeLeft(timerSeconds);
             hasAutoSubmittedRef.current = false;
 
             timerRef.current = setInterval(() => {
@@ -72,7 +73,7 @@ export default function GameBoard({ socket }: GameBoardProps) {
                 clearInterval(timerRef.current);
             }
         };
-    }, [myQuestion, hasAnswered]);
+    }, [myQuestion, hasAnswered, timerSeconds]);
 
     // Auto-submit when timer reaches 0
     useEffect(() => {

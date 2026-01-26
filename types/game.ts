@@ -15,6 +15,7 @@ export interface Player {
 export interface RoomSettings {
     maxPlayers: number;
     language: string;
+    timerSeconds: number; // Time allowed per answer (30, 60, 90, 120)
 }
 
 export interface GameState {

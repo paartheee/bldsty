@@ -524,6 +524,14 @@ function CreateRoomModal({
 }) {
     const [playerName, setPlayerName] = useState('');
     const [maxPlayers, setMaxPlayers] = useState(8);
+    const [timerSeconds, setTimerSeconds] = useState(60);
+
+    const timerOptions = [
+        { value: 30, label: '30s' },
+        { value: 60, label: '1 min' },
+        { value: 90, label: '1.5 min' },
+        { value: 120, label: '2 min' },
+    ];
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -531,6 +539,7 @@ function CreateRoomModal({
             onCreate(playerName, {
                 maxPlayers,
                 language: 'en',
+                timerSeconds,
             });
         }
     };
@@ -574,14 +583,26 @@ function CreateRoomModal({
                             </div>
                         </div>
 
-                        {/* Timer info */}
-                        <div className="flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10">
-                            <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center">
-                                <span className="text-lg">⏱️</span>
-                            </div>
-                            <div>
-                                <span className="text-sm font-semibold text-gray-300 block">1 minute per answer</span>
-                                <span className="text-xs text-gray-500">Keeps rounds fast and chaotic!</span>
+                        {/* Timer selection */}
+                        <div>
+                            <label className="block text-sm font-semibold mb-3 text-gray-300">
+                                ⏱️ Time per Answer
+                            </label>
+                            <div className="grid grid-cols-4 gap-2">
+                                {timerOptions.map((option) => (
+                                    <button
+                                        key={option.value}
+                                        type="button"
+                                        onClick={() => setTimerSeconds(option.value)}
+                                        className={`py-3 px-2 rounded-xl font-semibold text-sm transition-all ${
+                                            timerSeconds === option.value
+                                                ? 'bg-indigo-500 text-white'
+                                                : 'bg-white/5 text-gray-300 hover:bg-white/10 border border-white/10'
+                                        }`}
+                                    >
+                                        {option.label}
+                                    </button>
+                                ))}
                             </div>
                         </div>
 

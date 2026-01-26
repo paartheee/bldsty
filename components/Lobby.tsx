@@ -214,7 +214,7 @@ export default function Lobby({ socket, onLeaveRoom }: LobbyProps) {
                                 </div>
                                 <div>
                                     <span className="text-[10px] md:text-xs text-gray-500 block">Time per Answer</span>
-                                    <span className="font-bold text-white text-base md:text-lg">60 seconds</span>
+                                    <span className="font-bold text-white text-base md:text-lg">{room.settings.timerSeconds || 60}s</span>
                                 </div>
                             </div>
                         </div>
