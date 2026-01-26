@@ -10,8 +10,15 @@ config();
 
 const PORT = parseInt(process.env.PORT || '3001', 10);
 const ALLOWED_ORIGINS = process.env.ALLOWED_ORIGINS
-    ? process.env.ALLOWED_ORIGINS.split(',')
+    ? process.env.ALLOWED_ORIGINS.split(',').map(origin => origin.trim())
     : ['http://localhost:3000', 'https://bldsty.vercel.app', 'https://www.blindlol.com', 'https://blindlol.com'];
+
+// Log configuration for debugging
+console.log('🔧 Server Configuration:');
+console.log(`   PORT: ${PORT}`);
+console.log(`   ALLOWED_ORIGINS: ${ALLOWED_ORIGINS.join(', ')}`);
+console.log(`   NODE_ENV: ${process.env.NODE_ENV || 'development'}`);
+console.log(`   REDIS_URL: ${process.env.REDIS_URL ? '✅ Set' : '❌ Not set'}`);
 
 // Create standalone HTTP server for Socket.IO
 const httpServer = createServer((req, res) => {
