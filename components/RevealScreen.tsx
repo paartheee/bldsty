@@ -5,7 +5,7 @@ import { Socket } from 'socket.io-client';
 import { useGameStore } from '@/lib/game-store';
 import type { ServerToClientEvents, ClientToServerEvents, RevealData, QuestionType } from '@/types/game';
 import { motion } from 'framer-motion';
-import { Sparkles, RotateCcw } from 'lucide-react';
+import { Sparkles, RotateCcw, Users } from 'lucide-react';
 import AdBanner from './AdBanner';
 
 interface RevealScreenProps {
@@ -169,16 +169,25 @@ export default function RevealScreen({ socket, onPlayAgain }: RevealScreenProps)
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ delay: 2.5 }}
-                            className="flex justify-center"
+                            className="flex justify-center gap-4"
                         >
                             {isHost() ? (
-                                <button
-                                    onClick={handleNewRound}
-                                    className="btn-primary px-8 md:px-12 py-4 flex items-center justify-center gap-2 md:gap-3 text-lg md:text-xl font-bold"
-                                >
-                                    <RotateCcw className="w-5 h-5 md:w-6 md:h-6" />
-                                    Play Again
-                                </button>
+                                <div className="flex flex-col md:flex-row gap-3 md:gap-4 justify-center">
+                                    <button
+                                        onClick={handleNewRound}
+                                        className="btn-primary px-6 md:px-8 py-3 md:py-4 flex items-center justify-center gap-2 md:gap-3 text-lg md:text-xl font-bold"
+                                    >
+                                        <RotateCcw className="w-5 h-5 md:w-6 md:h-6" />
+                                        Play Again
+                                    </button>
+                                    <button
+                                        onClick={() => socket.emit('reset-to-lobby', {})}
+                                        className="btn-secondary px-6 md:px-8 py-3 md:py-4 flex items-center justify-center gap-2 md:gap-3 text-lg md:text-xl font-bold"
+                                    >
+                                        <Users className="w-5 h-5 md:w-6 md:h-6" />
+                                        Return to Lobby
+                                    </button>
+                                </div>
                             ) : (
                                 <div className="glass rounded-xl md:rounded-2xl px-6 py-4 md:px-8 md:py-5">
                                     <p className="text-center text-gray-300 text-sm md:text-base font-medium">

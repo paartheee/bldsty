@@ -210,6 +210,11 @@ export default function Home() {
             });
         });
 
+        socket.on('game-reset', () => {
+            console.log('Game reset to lobby by host');
+            setView('lobby');
+        });
+
         return () => {
             socket.disconnect();
         };
@@ -594,11 +599,10 @@ function CreateRoomModal({
                                         key={option.value}
                                         type="button"
                                         onClick={() => setTimerSeconds(option.value)}
-                                        className={`py-3 px-2 rounded-xl font-semibold text-sm transition-all ${
-                                            timerSeconds === option.value
+                                        className={`py-3 px-2 rounded-xl font-semibold text-sm transition-all ${timerSeconds === option.value
                                                 ? 'bg-indigo-500 text-white'
                                                 : 'bg-white/5 text-gray-300 hover:bg-white/10 border border-white/10'
-                                        }`}
+                                            }`}
                                     >
                                         {option.label}
                                     </button>

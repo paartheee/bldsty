@@ -388,6 +388,45 @@ export async function startNewRound(roomCode: string): Promise<Room | null> {
 }
 
 /**
+ * Reset game to lobby - allows host to change settings and start fresh
+ */
+export async function resetToLobby(
+    roomCode: string,
+    newSettings?: Partial<{ maxPlayers: number; timerSeconds: number }>
+): Promise<Room | null> {
+    const room = await getRoom(roomCode);
+    if (!room) return null;
+
+    // Update settings if provided
+    if (newSettings) {
+        if (newSettings.maxPlayers !== undefined) {
+            room.settings.maxPlayers = newSettings.maxPlayers;
+        }
+        if (newSettings.timerSeconds !== undefined) {
+            room.settings.timerSeconds = newSettings.timerSeconds;
+        }
+    }
+
+    // Reset game state to lobby
+    room.gameState.phase = 'lobby';
+    room.gameState.currentRound = 0;
+    room.gameState.answers = {};
+    room.gameState.currentTurnIndex = 0;
+    room.gameState.rotationIndex = 0;
+
+    // Clear all player question assignments
+    for (const player of room.players) {
+        player.assignedQuestion = undefined;
+        player.hasAnswered = false;
+        player.previousQuestion = undefined;
+        player.isReady = false;
+    }
+
+    await saveRoom(room);
+    return room;
+}
+
+/**
  * Get question label for display
  */
 export function getQuestionLabel(question: QuestionType): string {

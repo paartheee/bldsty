@@ -55,6 +55,7 @@ export interface ServerToClientEvents {
     'player-left': (playerId: string) => void;
     'error': (message: string) => void;
     'kicked': () => void;
+    'game-reset': () => void;
 }
 
 export interface ClientToServerEvents {
@@ -66,4 +67,5 @@ export interface ClientToServerEvents {
     'new-round': () => void;
     'kick-player': (playerId: string) => void;
     'toggle-ready': () => void;
+    'reset-to-lobby': (newSettings?: Partial<RoomSettings>) => void; // Host resets game to lobby with optional new settings
 }

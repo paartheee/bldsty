@@ -7,7 +7,8 @@ import {
     startGame,
     submitAnswer,
     generateReveal,
-    startNewRound
+    startNewRound,
+    resetToLobby
 } from './game-engine';
 import { getRoom, deleteRoom, saveRoom } from './redis-client';
 
@@ -290,6 +291,35 @@ export function setupSocketHandlers(io: any) {
             } catch (error) {
                 console.error('Error kicking player:', error);
                 socket.emit('error', 'Failed to kick player');
+            }
+        });
+
+        // RESET TO LOBBY
+        socket.on('reset-to-lobby', async (newSettings) => {
+            try {
+                const roomCode = socketRooms.get(socket.id);
+                if (!roomCode) return;
+
+                const room = await getRoom(roomCode);
+                if (!room || room.hostId !== socket.id) {
+                    socket.emit('error', 'Only host can reset to lobby');
+                    return;
+                }
+
+                const updatedRoom = await resetToLobby(roomCode, newSettings);
+                if (!updatedRoom) {
+                    socket.emit('error', 'Failed to reset to lobby');
+                    return;
+                }
+
+                console.log(`🔄 Game reset to lobby in room ${roomCode}`);
+
+                // Notify all players to return to lobby
+                io.to(roomCode).emit('game-reset');
+                io.to(roomCode).emit('room-updated', updatedRoom);
+            } catch (error) {
+                console.error('Error resetting to lobby:', error);
+                socket.emit('error', 'Failed to reset to lobby');
             }
         });
 
