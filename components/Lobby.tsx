@@ -65,8 +65,8 @@ export default function Lobby({ socket, onLeaveRoom }: LobbyProps) {
                 // Clear session storage
                 sessionStorage.removeItem('blindstory_session');
 
-                // Disconnect and leave room
-                socket.disconnect();
+                // Emit leave-room to trigger immediate removal and host transfer
+                socket.emit('leave-room');
 
                 // Call parent callback to reset view
                 if (onLeaveRoom) {

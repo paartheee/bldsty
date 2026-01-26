@@ -258,6 +258,34 @@ export function setupSocketHandlers(io: any) {
             }
         });
 
+        // LEAVE ROOM (Explicit)
+        socket.on('leave-room', async () => {
+            try {
+                const roomCode = socketRooms.get(socket.id);
+                if (!roomCode) return;
+
+                console.log(`👋 Player left explicitly: ${socket.id} from room ${roomCode}`);
+
+                // Remove from socket room
+                socket.leave(roomCode);
+                socketRooms.delete(socket.id);
+
+                // Update room state (this handles host reassignment)
+                const updatedRoom = await removePlayer(roomCode, socket.id);
+
+                if (updatedRoom) {
+                    io.to(roomCode).emit('player-left', socket.id);
+                    io.to(roomCode).emit('room-updated', updatedRoom);
+                } else {
+                    // Room is empty, delete it
+                    await deleteRoom(roomCode);
+                    console.log(`🗑️ Room ${roomCode} deleted (empty)`);
+                }
+            } catch (error) {
+                console.error('Error leaving room:', error);
+            }
+        });
+
         // KICK PLAYER
         socket.on('kick-player', async (playerId) => {
             try {
