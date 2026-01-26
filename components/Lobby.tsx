@@ -198,23 +198,92 @@ export default function Lobby({ socket, onLeaveRoom }: LobbyProps) {
                     <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 backdrop-blur-xl border border-white/5"></div>
                     <div className="relative p-4 md:p-6">
                         <h4 className="font-bold mb-3 md:mb-4 text-base md:text-lg text-gray-300">Game Settings</h4>
-                        <div className="grid grid-cols-2 gap-4 md:gap-6">
-                            <div className="flex items-center gap-2 md:gap-3">
-                                <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-indigo-500/20 flex items-center justify-center shrink-0">
-                                    <Users className="w-4 h-4 md:w-5 md:h-5 text-indigo-400" />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                            <div className="glass rounded-xl p-3 md:p-4 border border-white/10">
+                                <div className="flex items-center gap-3 mb-2">
+                                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-indigo-500/20 flex items-center justify-center shrink-0">
+                                        <Users className="w-4 h-4 md:w-5 md:h-5 text-indigo-400" />
+                                    </div>
+                                    <span className="text-sm md:text-base font-bold text-gray-300">Max Players</span>
                                 </div>
-                                <div>
-                                    <span className="text-[10px] md:text-xs text-gray-500 block">Max Players</span>
-                                    <span className="font-bold text-white text-base md:text-lg">{room.settings.maxPlayers}</span>
+                                <div className="flex items-center justify-between bg-black/20 rounded-lg p-2">
+                                    {isHost() ? (
+                                        <>
+                                            <button
+                                                onClick={() => {
+                                                    const newMax = Math.max(4, room.settings.maxPlayers - 1);
+                                                    if (newMax !== room.settings.maxPlayers) {
+                                                        socket.emit('reset-to-lobby', { maxPlayers: newMax });
+                                                    }
+                                                }}
+                                                className="w-8 h-8 flex items-center justify-center rounded-lg bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 transition-colors disabled:opacity-50"
+                                                disabled={room.settings.maxPlayers <= 4}
+                                            >
+                                                -
+                                            </button>
+                                            <span className="font-black text-lg md:text-xl text-white">{room.settings.maxPlayers}</span>
+                                            <button
+                                                onClick={() => {
+                                                    const newMax = Math.min(12, room.settings.maxPlayers + 1);
+                                                    if (newMax !== room.settings.maxPlayers) {
+                                                        socket.emit('reset-to-lobby', { maxPlayers: newMax });
+                                                    }
+                                                }}
+                                                className="w-8 h-8 flex items-center justify-center rounded-lg bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-300 transition-colors disabled:opacity-50"
+                                                disabled={room.settings.maxPlayers >= 12}
+                                            >
+                                                +
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <div className="w-full text-center font-black text-lg md:text-xl text-white">
+                                            {room.settings.maxPlayers}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
-                            <div className="flex items-center gap-2 md:gap-3">
-                                <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-purple-500/20 flex items-center justify-center shrink-0">
-                                    <span className="text-sm md:text-lg">⏱️</span>
+
+                            <div className="glass rounded-xl p-3 md:p-4 border border-white/10">
+                                <div className="flex items-center gap-3 mb-2">
+                                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-purple-500/20 flex items-center justify-center shrink-0">
+                                        <span className="text-sm md:text-lg">⏱️</span>
+                                    </div>
+                                    <span className="text-sm md:text-base font-bold text-gray-300">Time per Answer</span>
                                 </div>
-                                <div>
-                                    <span className="text-[10px] md:text-xs text-gray-500 block">Time per Answer</span>
-                                    <span className="font-bold text-white text-base md:text-lg">{room.settings.timerSeconds || 60}s</span>
+                                <div className="flex items-center justify-between bg-black/20 rounded-lg p-2">
+                                    {isHost() ? (
+                                        <>
+                                            <button
+                                                onClick={() => {
+                                                    const newTime = Math.max(30, (room.settings.timerSeconds || 60) - 15);
+                                                    if (newTime !== room.settings.timerSeconds) {
+                                                        socket.emit('reset-to-lobby', { timerSeconds: newTime });
+                                                    }
+                                                }}
+                                                className="w-8 h-8 flex items-center justify-center rounded-lg bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 transition-colors disabled:opacity-50"
+                                                disabled={(room.settings.timerSeconds || 60) <= 30}
+                                            >
+                                                -
+                                            </button>
+                                            <span className="font-black text-lg md:text-xl text-white">{room.settings.timerSeconds || 60}s</span>
+                                            <button
+                                                onClick={() => {
+                                                    const newTime = Math.min(120, (room.settings.timerSeconds || 60) + 15);
+                                                    if (newTime !== room.settings.timerSeconds) {
+                                                        socket.emit('reset-to-lobby', { timerSeconds: newTime });
+                                                    }
+                                                }}
+                                                className="w-8 h-8 flex items-center justify-center rounded-lg bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 transition-colors disabled:opacity-50"
+                                                disabled={(room.settings.timerSeconds || 60) >= 120}
+                                            >
+                                                +
+                                            </button>
+                                        </>
+                                    ) : (
+                                        <div className="w-full text-center font-black text-lg md:text-xl text-white">
+                                            {room.settings.timerSeconds || 60}s
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>

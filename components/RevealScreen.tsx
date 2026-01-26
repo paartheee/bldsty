@@ -185,7 +185,7 @@ export default function RevealScreen({ socket, onPlayAgain }: RevealScreenProps)
                                         className="btn-secondary px-6 md:px-8 py-3 md:py-4 flex items-center justify-center gap-2 md:gap-3 text-lg md:text-xl font-bold"
                                     >
                                         <Users className="w-5 h-5 md:w-6 md:h-6" />
-                                        Return to Lobby
+                                        Add / Remove Players
                                     </button>
                                 </div>
                             ) : (
