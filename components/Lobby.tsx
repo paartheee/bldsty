@@ -86,8 +86,8 @@ export default function Lobby({ socket, onLeaveRoom }: LobbyProps) {
 
             <div className="max-w-4xl w-full relative z-10">
                 {/* Room Code Section */}
-                <div className="text-center mb-8 md:mb-10 animate-fadeIn">
-                    <h2 className="text-base md:text-xl font-bold mb-4 md:mb-6 text-gray-400 uppercase tracking-wider">Room Code</h2>
+                <div className="text-center mb-4 md:mb-10 animate-fadeIn">
+                    <h2 className="text-base md:text-xl font-bold mb-2 md:mb-6 text-gray-400 uppercase tracking-wider">Room Code</h2>
                     <div className="relative group inline-block w-full max-w-md mx-auto">
                         <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/30 to-purple-500/30 rounded-2xl md:rounded-3xl blur-2xl group-hover:blur-3xl transition-all"></div>
                         <div className="relative glass rounded-2xl md:rounded-3xl px-4 py-3 sm:px-6 sm:py-4 md:px-10 md:py-6 border-2 border-white/20 flex items-center justify-between gap-3 sm:gap-4">
@@ -107,11 +107,11 @@ export default function Lobby({ socket, onLeaveRoom }: LobbyProps) {
                             </button>
                         </div>
                     </div>
-                    <p className="text-gray-400 mt-4 md:mt-6 text-sm md:text-lg font-medium">Share this code with your friends!</p>
+                    <p className="text-gray-400 mt-2 md:mt-6 text-sm md:text-lg font-medium">Share this code with your friends!</p>
                 </div>
 
                 {/* Leave Room Button */}
-                <div className="text-center mb-6 md:mb-8 animate-fadeIn" style={{ animationDelay: '0.1s' }}>
+                <div className="text-center mb-3 md:mb-8 animate-fadeIn" style={{ animationDelay: '0.1s' }}>
                     <button
                         onClick={handleLeaveRoom}
                         className="btn-secondary px-6 py-3 flex items-center gap-2 mx-auto hover:bg-red-500/20 hover:border-red-500/40 transition-all"
@@ -122,7 +122,7 @@ export default function Lobby({ socket, onLeaveRoom }: LobbyProps) {
                 </div>
 
                 {/* Players Section */}
-                <div className="relative rounded-2xl md:rounded-3xl overflow-hidden mb-6 md:mb-8 animate-fadeIn" style={{ animationDelay: '0.2s' }}>
+                <div className="relative rounded-2xl md:rounded-3xl overflow-hidden mb-3 md:mb-8 animate-fadeIn" style={{ animationDelay: '0.2s' }}>
                     <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 backdrop-blur-xl border border-white/10"></div>
                     <div className="relative p-4 md:p-8">
                         <div className="flex items-center justify-between mb-4 md:mb-8 gap-2">
@@ -194,11 +194,11 @@ export default function Lobby({ socket, onLeaveRoom }: LobbyProps) {
                 </div>
 
                 {/* Game Info */}
-                <div className="relative rounded-xl md:rounded-2xl overflow-hidden mb-6 md:mb-8 animate-fadeIn" style={{ animationDelay: '0.4s' }}>
+                <div className="relative rounded-xl md:rounded-2xl overflow-hidden mb-3 md:mb-8 animate-fadeIn" style={{ animationDelay: '0.4s' }}>
                     <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-pink-500/5 backdrop-blur-xl border border-white/5"></div>
-                    <div className="relative p-4 md:p-6">
-                        <h4 className="font-bold mb-3 md:mb-4 text-base md:text-lg text-gray-300">Game Settings</h4>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                    <div className="relative p-3 md:p-6">
+                        <h4 className="font-bold mb-2 md:mb-4 text-base md:text-lg text-gray-300">Game Settings</h4>
+                        <div className="grid grid-cols-2 gap-3 md:gap-6">
                             <div className="glass rounded-xl p-3 md:p-4 border border-white/10">
                                 <div className="flex items-center gap-3 mb-2">
                                     <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-indigo-500/20 flex items-center justify-center shrink-0">
@@ -290,8 +290,8 @@ export default function Lobby({ socket, onLeaveRoom }: LobbyProps) {
                     </div>
                 </div>
 
-                {/* Ad Banner */}
-                <div className="mb-6 md:mb-8 animate-fadeIn" style={{ animationDelay: '0.6s' }}>
+                {/* Ad Banner - Hidden on mobile */}
+                <div className="hidden md:block mb-8 animate-fadeIn" style={{ animationDelay: '0.6s' }}>
                     <AdBanner
                         adSlot="1234567891"
                         adFormat="auto"
@@ -312,7 +312,7 @@ export default function Lobby({ socket, onLeaveRoom }: LobbyProps) {
                         {room.players.length >= 4 && (
                             <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                         )}
-                        <div className="relative px-6 py-4 md:px-8 md:py-5 font-black text-lg md:text-2xl text-white">
+                        <div className="relative px-4 py-3 md:px-8 md:py-5 font-black text-base md:text-2xl text-white">
                             {room.players.length < 4 ? 'Waiting for Players...' : 'Start Game 🚀'}
                         </div>
                     </button>
@@ -321,8 +321,8 @@ export default function Lobby({ socket, onLeaveRoom }: LobbyProps) {
                 {!isHost() && (
                     <div className="relative rounded-xl md:rounded-2xl overflow-hidden">
                         <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-purple-500/10 backdrop-blur-xl border border-white/10 animate-pulse"></div>
-                        <div className="relative text-center py-4 md:py-6 px-4">
-                            <p className="text-base md:text-xl font-semibold text-gray-300">
+                        <div className="relative text-center py-3 md:py-6 px-4">
+                            <p className="text-sm md:text-xl font-semibold text-gray-300">
                                 Waiting for host to start the game...
                             </p>
                         </div>

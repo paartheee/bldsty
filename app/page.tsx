@@ -369,27 +369,27 @@ export default function Home() {
 
             <div className="max-w-2xl w-full relative z-10">
                 {/* Hero Section */}
-                <div className="text-center mb-12 animate-fadeIn">
-                    <div className="flex items-center justify-center mb-6 relative">
+                <div className="text-center mb-6 md:mb-12 animate-fadeIn">
+                    <div className="flex items-center justify-center mb-3 md:mb-6 relative">
                         <div className="absolute inset-0 blur-2xl opacity-50">
-                            <Sparkles className="w-16 h-16 mx-auto text-indigo-500" />
+                            <Sparkles className="w-12 h-12 md:w-16 md:h-16 mx-auto text-indigo-500" />
                         </div>
-                        <Sparkles className="w-16 h-16 text-indigo-400 animate-pulse relative" />
+                        <Sparkles className="w-12 h-12 md:w-16 md:h-16 text-indigo-400 animate-pulse relative" />
                     </div>
-                    <h1 className="text-7xl md:text-8xl font-black mb-6 tracking-tight animate-title">
+                    <h1 className="text-5xl md:text-8xl font-black mb-3 md:mb-6 tracking-tight animate-title">
                         <span className="gradient-text">BlindLOL</span>
                         <span className="ml-2 animate-wiggle">😜</span>
                     </h1>
-                    <p className="text-2xl md:text-3xl font-bold text-white mb-3 animate-fadeIn" style={{ animationDelay: '0.2s' }}>
+                    <p className="text-xl md:text-3xl font-bold text-white mb-2 md:mb-3 animate-fadeIn" style={{ animationDelay: '0.2s' }}>
                         Create hilarious stories with friends
                     </p>
-                    <p className="text-lg text-gray-400 animate-fadeIn" style={{ animationDelay: '0.4s' }}>
+                    <p className="text-base md:text-lg text-gray-400 animate-fadeIn" style={{ animationDelay: '0.4s' }}>
                         Answer questions without seeing what others wrote!
                     </p>
                 </div>
 
                 {/* Action Buttons */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+                <div className="grid grid-cols-2 gap-3 md:gap-6 mb-6 md:mb-12">
                     <button
                         onClick={() => setShowCreateModal(true)}
                         className="group relative overflow-hidden rounded-2xl transition-all duration-300 hover:scale-105 hover:-translate-y-1 animate-fadeIn"
@@ -397,13 +397,13 @@ export default function Home() {
                     >
                         <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 backdrop-blur-xl border border-white/10 pointer-events-none"></div>
                         <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/0 to-purple-500/0 group-hover:from-indigo-500/30 group-hover:to-purple-500/30 transition-all duration-300 pointer-events-none"></div>
-                        <div className="relative flex flex-col items-center p-8 pointer-events-none">
-                            <div className="relative mb-4">
+                        <div className="relative flex flex-col items-center p-4 md:p-8 pointer-events-none">
+                            <div className="relative mb-2 md:mb-4">
                                 <div className="absolute inset-0 bg-indigo-500/50 blur-xl rounded-full group-hover:blur-2xl transition-all"></div>
-                                <Users className="w-14 h-14 text-indigo-300 group-hover:scale-110 group-hover:text-indigo-200 transition-all relative" />
+                                <Users className="w-10 h-10 md:w-14 md:h-14 text-indigo-300 group-hover:scale-110 group-hover:text-indigo-200 transition-all relative" />
                             </div>
-                            <h3 className="text-3xl font-bold mb-2 text-white">Create Room</h3>
-                            <p className="text-gray-300 text-base">Start a new game</p>
+                            <h3 className="text-xl md:text-3xl font-bold mb-1 md:mb-2 text-white">Create Room</h3>
+                            <p className="text-gray-300 text-sm md:text-base">Start a new game</p>
                         </div>
                     </button>
 
@@ -414,19 +414,19 @@ export default function Home() {
                     >
                         <div className="absolute inset-0 bg-gradient-to-br from-pink-500/20 to-rose-500/20 backdrop-blur-xl border border-white/10 pointer-events-none"></div>
                         <div className="absolute inset-0 bg-gradient-to-br from-pink-500/0 to-rose-500/0 group-hover:from-pink-500/30 group-hover:to-rose-500/30 transition-all duration-300 pointer-events-none"></div>
-                        <div className="relative flex flex-col items-center p-8 pointer-events-none">
-                            <div className="relative mb-4">
+                        <div className="relative flex flex-col items-center p-4 md:p-8 pointer-events-none">
+                            <div className="relative mb-2 md:mb-4">
                                 <div className="absolute inset-0 bg-pink-500/50 blur-xl rounded-full group-hover:blur-2xl transition-all"></div>
-                                <LogIn className="w-14 h-14 text-pink-300 group-hover:scale-110 group-hover:text-pink-200 transition-all relative" />
+                                <LogIn className="w-10 h-10 md:w-14 md:h-14 text-pink-300 group-hover:scale-110 group-hover:text-pink-200 transition-all relative" />
                             </div>
-                            <h3 className="text-3xl font-bold mb-2 text-white">Join Room</h3>
-                            <p className="text-gray-300 text-base">Enter a room code</p>
+                            <h3 className="text-xl md:text-3xl font-bold mb-1 md:mb-2 text-white">Join Room</h3>
+                            <p className="text-gray-300 text-sm md:text-base">Enter a room code</p>
                         </div>
                     </button>
                 </div>
 
                 {/* Product Hunt Badge */}
-                <div className="flex justify-center mb-12 animate-fadeIn" style={{ animationDelay: '0.9s' }}>
+                <div className="flex justify-center mb-4 md:mb-12 animate-fadeIn" style={{ animationDelay: '0.9s' }}>
                     <a
                         href="https://www.producthunt.com/products/blindlol?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-blindlol"
                         target="_blank"
@@ -444,60 +444,60 @@ export default function Home() {
                 </div>
 
                 {/* How to Play */}
-                <div className="relative rounded-3xl overflow-hidden animate-fadeIn" style={{ animationDelay: '1s' }}>
+                <div className="relative rounded-2xl md:rounded-3xl overflow-hidden animate-fadeIn" style={{ animationDelay: '1s' }}>
                     <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-pink-500/10 backdrop-blur-xl border border-white/10"></div>
-                    <div className="relative p-8">
-                        <h3 className="text-2xl font-bold mb-8 text-center bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300 bg-clip-text text-transparent">
+                    <div className="relative p-4 md:p-8">
+                        <h3 className="text-xl md:text-2xl font-bold mb-4 md:mb-8 text-center bg-gradient-to-r from-indigo-300 via-purple-300 to-pink-300 bg-clip-text text-transparent">
                             How to Play
                         </h3>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-6">
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-6 mb-3 md:mb-6">
                             <div className="text-center group">
-                                <div className="relative mb-3 mx-auto w-16 h-16 flex items-center justify-center">
-                                    <div className="absolute inset-0 bg-indigo-500/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all"></div>
-                                    <div className="relative text-4xl font-black bg-gradient-to-br from-indigo-400 to-indigo-600 bg-clip-text text-transparent">
+                                <div className="relative mb-1 md:mb-3 mx-auto w-10 h-10 md:w-16 md:h-16 flex items-center justify-center">
+                                    <div className="absolute inset-0 bg-indigo-500/20 rounded-xl md:rounded-2xl blur-lg md:blur-xl group-hover:blur-2xl transition-all"></div>
+                                    <div className="relative text-2xl md:text-4xl font-black bg-gradient-to-br from-indigo-400 to-indigo-600 bg-clip-text text-transparent">
                                         1
                                     </div>
                                 </div>
-                                <p className="text-sm font-medium text-gray-300">Answer "Who?"</p>
+                                <p className="text-xs md:text-sm font-medium text-gray-300">Answer "Who?"</p>
                             </div>
                             <div className="text-center group">
-                                <div className="relative mb-3 mx-auto w-16 h-16 flex items-center justify-center">
-                                    <div className="absolute inset-0 bg-purple-500/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all"></div>
-                                    <div className="relative text-4xl font-black bg-gradient-to-br from-purple-400 to-purple-600 bg-clip-text text-transparent">
+                                <div className="relative mb-1 md:mb-3 mx-auto w-10 h-10 md:w-16 md:h-16 flex items-center justify-center">
+                                    <div className="absolute inset-0 bg-purple-500/20 rounded-xl md:rounded-2xl blur-lg md:blur-xl group-hover:blur-2xl transition-all"></div>
+                                    <div className="relative text-2xl md:text-4xl font-black bg-gradient-to-br from-purple-400 to-purple-600 bg-clip-text text-transparent">
                                         2
                                     </div>
                                 </div>
-                                <p className="text-sm font-medium text-gray-300">Answer "With whom?"</p>
+                                <p className="text-xs md:text-sm font-medium text-gray-300">With whom?</p>
                             </div>
                             <div className="text-center group">
-                                <div className="relative mb-3 mx-auto w-16 h-16 flex items-center justify-center">
-                                    <div className="absolute inset-0 bg-pink-500/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all"></div>
-                                    <div className="relative text-4xl font-black bg-gradient-to-br from-pink-400 to-pink-600 bg-clip-text text-transparent">
+                                <div className="relative mb-1 md:mb-3 mx-auto w-10 h-10 md:w-16 md:h-16 flex items-center justify-center">
+                                    <div className="absolute inset-0 bg-pink-500/20 rounded-xl md:rounded-2xl blur-lg md:blur-xl group-hover:blur-2xl transition-all"></div>
+                                    <div className="relative text-2xl md:text-4xl font-black bg-gradient-to-br from-pink-400 to-pink-600 bg-clip-text text-transparent">
                                         3
                                     </div>
                                 </div>
-                                <p className="text-sm font-medium text-gray-300">Answer "Where?"</p>
+                                <p className="text-xs md:text-sm font-medium text-gray-300">Answer "Where?"</p>
                             </div>
                             <div className="text-center group">
-                                <div className="relative mb-3 mx-auto w-16 h-16 flex items-center justify-center">
-                                    <div className="absolute inset-0 bg-rose-500/20 rounded-2xl blur-xl group-hover:blur-2xl transition-all"></div>
-                                    <div className="relative text-4xl font-black bg-gradient-to-br from-rose-400 to-rose-600 bg-clip-text text-transparent">
+                                <div className="relative mb-1 md:mb-3 mx-auto w-10 h-10 md:w-16 md:h-16 flex items-center justify-center">
+                                    <div className="absolute inset-0 bg-rose-500/20 rounded-xl md:rounded-2xl blur-lg md:blur-xl group-hover:blur-2xl transition-all"></div>
+                                    <div className="relative text-2xl md:text-4xl font-black bg-gradient-to-br from-rose-400 to-rose-600 bg-clip-text text-transparent">
                                         4
                                     </div>
                                 </div>
-                                <p className="text-sm font-medium text-gray-300">Answer "How?"</p>
+                                <p className="text-xs md:text-sm font-medium text-gray-300">Answer "How?"</p>
                             </div>
                         </div>
-                        <div className="text-center pt-4 border-t border-white/10">
-                            <p className="text-gray-400 font-medium">
+                        <div className="text-center pt-3 md:pt-4 border-t border-white/10">
+                            <p className="text-gray-400 font-medium text-sm md:text-base">
                                 See the hilarious story revealed at the end!
                             </p>
                         </div>
                     </div>
                 </div>
 
-                {/* Ad Banner */}
-                <div className="mt-8 animate-fadeIn" style={{ animationDelay: '1.2s' }}>
+                {/* Ad Banner - Hidden on mobile */}
+                <div className="hidden md:block mt-8 animate-fadeIn" style={{ animationDelay: '1.2s' }}>
                     <AdBanner
                         adSlot="1234567890"
                         adFormat="auto"
