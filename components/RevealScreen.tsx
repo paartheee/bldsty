@@ -52,7 +52,7 @@ export default function RevealScreen({ socket, onPlayAgain }: RevealScreenProps)
     };
 
     return (
-        <div className="min-h-screen flex items-start md:items-center justify-start md:justify-center p-2 md:p-4 pt-4 md:pt-4">
+        <div className="min-h-screen flex items-start md:items-center justify-start md:justify-center p-1 md:p-4 pt-2 md:pt-4">
             <div className="max-w-4xl w-full">
                 {/* Header */}
                 <div className="text-center mb-8 md:mb-12 animate-fadeIn">

@@ -77,7 +77,7 @@ export default function Lobby({ socket, onLeaveRoom }: LobbyProps) {
     };
 
     return (
-        <div className="min-h-screen flex items-start md:items-center justify-start md:justify-center p-2 md:p-4 pt-4 md:pt-4 relative overflow-hidden">
+        <div className="min-h-screen flex items-start md:items-center justify-start md:justify-center p-1 md:p-4 pt-2 md:pt-4 relative overflow-hidden">
             {/* Animated background elements */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-20 left-10 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl animate-float"></div>
