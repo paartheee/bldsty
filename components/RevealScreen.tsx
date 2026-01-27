@@ -52,7 +52,7 @@ export default function RevealScreen({ socket, onPlayAgain }: RevealScreenProps)
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="min-h-screen flex items-start md:items-center justify-start md:justify-center p-2 md:p-4 pt-4 md:pt-4">
             <div className="max-w-4xl w-full">
                 {/* Header */}
                 <div className="text-center mb-8 md:mb-12 animate-fadeIn">
@@ -140,7 +140,7 @@ export default function RevealScreen({ socket, onPlayAgain }: RevealScreenProps)
                             transition={{ delay: 2 }}
                             className="flex justify-center gap-3 md:gap-4 mb-6 md:mb-8"
                         >
-                            {['😂', '🤣', '😆', '🔥'].map((emoji, i) => (
+                            {['🔥', '😜', '🤣', '😂', '🔥'].map((emoji, i) => (
                                 <button
                                     key={i}
                                     className="text-4xl md:text-5xl hover:scale-125 transition-transform cursor-pointer active:scale-90"

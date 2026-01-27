@@ -275,6 +275,33 @@ body {
   }
 }
 
+@keyframes wiggle {
+  0%, 100% {
+    transform: scale(1, 1) rotate(0deg);
+  }
+  10% {
+    transform: scale(1.1, 0.9) rotate(-3deg);
+  }
+  20% {
+    transform: scale(0.9, 1.1) rotate(3deg);
+  }
+  30% {
+    transform: scale(1.05, 0.95) rotate(-2deg);
+  }
+  40% {
+    transform: scale(0.95, 1.05) rotate(2deg);
+  }
+  50% {
+    transform: scale(1, 1) rotate(0deg);
+  }
+}
+
+.animate-wiggle {
+  display: inline-block;
+  animation: wiggle 1.5s ease-in-out infinite;
+  animation-delay: 1s;
+}
+
 .animate-fadeIn {
   animation: fadeIn 0.5s ease-out;
 }

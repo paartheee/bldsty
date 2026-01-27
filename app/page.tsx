@@ -304,7 +304,7 @@ export default function Home() {
     // Show reconnecting overlay
     if (isReconnecting) {
         return (
-            <div className="min-h-screen flex items-center justify-center p-4">
+            <div className="min-h-screen flex items-start md:items-center justify-start md:justify-center p-2 md:p-4 pt-4 md:pt-4">
                 <div className="text-center">
                     <div className="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                     <h2 className="text-2xl font-bold text-white mb-2">Reconnecting...</h2>
@@ -320,7 +320,7 @@ export default function Home() {
         }
         // Show loading while waiting for room data
         return (
-            <div className="min-h-screen flex items-center justify-center p-4">
+            <div className="min-h-screen flex items-start md:items-center justify-start md:justify-center p-2 md:p-4 pt-4 md:pt-4">
                 <div className="text-center">
                     <div className="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                     <h2 className="text-2xl font-bold text-white mb-2">Creating Room...</h2>
@@ -335,7 +335,7 @@ export default function Home() {
             return <GameBoard socket={socket} />;
         }
         return (
-            <div className="min-h-screen flex items-center justify-center p-4">
+            <div className="min-h-screen flex items-start md:items-center justify-start md:justify-center p-2 md:p-4 pt-4 md:pt-4">
                 <div className="text-center">
                     <div className="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                     <h2 className="text-2xl font-bold text-white mb-2">Loading Game...</h2>
@@ -349,7 +349,7 @@ export default function Home() {
             return <RevealScreen socket={socket} onPlayAgain={() => setView('game')} />;
         }
         return (
-            <div className="min-h-screen flex items-center justify-center p-4">
+            <div className="min-h-screen flex items-start md:items-center justify-start md:justify-center p-2 md:p-4 pt-4 md:pt-4">
                 <div className="text-center">
                     <div className="w-16 h-16 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
                     <h2 className="text-2xl font-bold text-white mb-2">Loading...</h2>
@@ -359,7 +359,7 @@ export default function Home() {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+        <div className="min-h-screen flex items-start md:items-center justify-start md:justify-center p-2 md:p-4 pt-4 md:pt-4 relative overflow-hidden">
             {/* Animated background elements */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
                 <div className="absolute top-20 left-10 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl animate-float"></div>
@@ -378,7 +378,7 @@ export default function Home() {
                     </div>
                     <h1 className="text-7xl md:text-8xl font-black mb-6 tracking-tight animate-title">
                         <span className="gradient-text">BlindLOL</span>
-                        <span className="ml-2">😂</span>
+                        <span className="ml-2 animate-wiggle">😜</span>
                     </h1>
                     <p className="text-2xl md:text-3xl font-bold text-white mb-3 animate-fadeIn" style={{ animationDelay: '0.2s' }}>
                         Create hilarious stories with friends
